@@ -124,3 +124,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
     end if
     return false
 end function
+
+sub onKeyInput()
+    onKeyEvent(m.top.keyInput, true)
+end sub

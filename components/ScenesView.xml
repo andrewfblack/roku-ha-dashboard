@@ -5,6 +5,7 @@
     <field id="tabRequest" type="string" alwaysNotify="true" />
     <field id="commandRequest" type="assocarray" alwaysNotify="true" />
     <field id="commandResult" type="assocarray" onChange="onCommandResult" />
+    <field id="keyInput" type="string" alwaysNotify="true" onChange="onKeyInput" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/ScenesView.brs" />
   <children>

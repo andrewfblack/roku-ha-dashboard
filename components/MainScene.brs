@@ -91,7 +91,7 @@ sub startDashboard(config as object)
     m.currentTab = "home"
     m.homeView.url = config.url
     m.homeView.mealEntity = config.mealEntity
-    m.homeView.SetFocus(true)
+    m.top.SetFocus(true)
 
     if m.haTask <> invalid
         m.haTask.control = "STOP"
@@ -214,9 +214,22 @@ sub showTab(name as string)
     end for
     view = m.views[name]
     view.visible = true
-    view.SetFocus(true)
+    m.top.SetFocus(true)
     m.currentTab = name
 end sub
+
+' MainScene owns focus on the dashboard and forwards keys explicitly. This
+' avoids older Roku OS versions leaving focus in hidden setup controls.
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not press then return false
+    if m.setupView.visible then return false
+    if key = "back" and m.currentTab = "home" then return false
+    view = m.views[m.currentTab]
+    if view = invalid then return false
+    print "KEY: "; key; " -> "; m.currentTab
+    view.keyInput = key
+    return true
+end function
 
 sub sendCommand(command as object)
     m.commandSeq = m.commandSeq + 1

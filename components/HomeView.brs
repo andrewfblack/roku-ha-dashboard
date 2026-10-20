@@ -2,6 +2,7 @@
 ' Renders today's calendar events, the meal plan sensor and the
 ' inside/outside climate readout from Home Assistant data.
 sub init()
+    m.top.focusable = true
     m.states = {}
     m.resolvedEntities = {}
     m.events = []

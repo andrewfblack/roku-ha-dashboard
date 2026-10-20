@@ -1,4 +1,5 @@
 sub init()
+    m.top.focusable = true
     m.name = m.top.FindNode("name") : m.index = m.top.FindNode("index")
     m.current = m.top.FindNode("current") : m.target = m.top.FindNode("target")
     m.mode = m.top.FindNode("mode") : m.action = m.top.FindNode("action")

@@ -1,4 +1,5 @@
 sub init()
+    m.top.focusable = true
     m.status = m.top.FindNode("status")
     m.name = m.top.FindNode("weatherName")
     m.temp = m.top.FindNode("currentTemp")

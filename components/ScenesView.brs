@@ -1,4 +1,5 @@
 sub init()
+    m.top.focusable = true
     m.grid = m.top.FindNode("grid")
     m.status = m.top.FindNode("status")
     m.empty = m.top.FindNode("empty")

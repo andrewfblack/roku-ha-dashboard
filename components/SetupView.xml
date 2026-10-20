@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="SetupView" extends="Group">
+  <interface>
+    <field id="configSaved" type="boolean" alwaysNotify="true" />
+    <field id="config" type="assocarray" />
+    <field id="prefill" type="assocarray" onChange="onPrefill" />
+    <field id="errorMessage" type="string" onChange="onErrorMessage" />
+  </interface>
+  <script type="text/brightscript" uri="pkg:/components/SetupView.brs" />
+  <children>
+    <Label id="titleLabel" text="Connect to Home Assistant" horizAlign="left" translation="[80,50]">
+      <Font role="font" uri="font:MediumSystemFont" size="52" />
+    </Label>
+    <Label id="subtitleLabel" horizAlign="left" wrap="true" width="1500" translation="[80,125]">
+      <Font role="font" uri="font:SmallerSystemFont" size="28" />
+    </Label>
+    <Label id="errorLabel" text="" horizAlign="left" width="1500" color="0xFF9E80FF" translation="[80,205]">
+      <Font role="font" uri="font:SmallerSystemFont" size="30" />
+    </Label>
+
+    <Label id="urlLabel" text="Home Assistant URL" horizAlign="left" translation="[80,290]">
+      <Font role="font" uri="font:SmallerSystemFont" size="26" />
+    </Label>
+    <TextEditBox id="urlBox" translation="[80,330]" width="1300" height="62" />
+
+    <Label id="tokenLabel" text="Long-lived access token" horizAlign="left" translation="[80,420]">
+      <Font role="font" uri="font:SmallerSystemFont" size="26" />
+    </Label>
+    <TextEditBox id="tokenBox" translation="[80,460]" width="1300" height="62" />
+
+    <Label id="mealLabel" text="Meal plan sensor entity (optional)" horizAlign="left" translation="[80,550]">
+      <Font role="font" uri="font:SmallerSystemFont" size="26" />
+    </Label>
+    <TextEditBox id="mealBox" translation="[80,590]" width="1300" height="62" />
+
+    <Label id="insideLabel" text="Inside temperature entity (optional, auto-detected if blank)" horizAlign="left" translation="[80,680]">
+      <Font role="font" uri="font:SmallerSystemFont" size="26" />
+    </Label>
+    <TextEditBox id="insideBox" translation="[80,720]" width="1300" height="62" />
+
+    <Label id="outsideLabel" text="Outside weather entity (optional, auto-detected if blank)" horizAlign="left" translation="[80,810]">
+      <Font role="font" uri="font:SmallerSystemFont" size="26" />
+    </Label>
+    <TextEditBox id="outsideBox" translation="[80,850]" width="1300" height="62" />
+
+    <Button id="saveButton" text="SAVE" translation="[80,950]" />
+    <Label id="hintLabel" text="Press OK on a field to type. Use Back to dismiss the keyboard." horizAlign="left" color="0xC0B49CFF" translation="[320,965]">
+      <Font role="font" uri="font:SmallerSystemFont" size="24" />
+    </Label>
+  </children>
+</component>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="HATask" extends="Task">
+  <interface>
+    <field id="url" type="string" />
+    <field id="token" type="string" />
+    <field id="mealEntity" type="string" />
+    <field id="insideEntity" type="string" />
+    <field id="outsideEntity" type="string" />
+    <field id="lastConfig" type="assocarray" />
+    <field id="states" type="assocarray" alwaysNotify="true" />
+    <field id="resolvedEntities" type="assocarray" alwaysNotify="true" />
+    <field id="calendarEvents" type="array" alwaysNotify="true" />
+    <field id="mealPlan" type="string" alwaysNotify="true" />
+    <field id="connectionStatus" type="string" alwaysNotify="true" />
+  </interface>
+  <script type="text/brightscript" uri="pkg:/components/tasks/HATask.brs" />
+</component>

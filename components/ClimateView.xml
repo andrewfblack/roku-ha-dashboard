@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="ClimateView" extends="Group">
+  <interface>
+    <field id="items" type="array" onChange="onItems" />
+    <field id="tabRequest" type="string" alwaysNotify="true" />
+    <field id="commandRequest" type="assocarray" alwaysNotify="true" />
+    <field id="commandResult" type="assocarray" onChange="onCommandResult" />
+  </interface>
+  <script type="text/brightscript" uri="pkg:/components/ClimateView.brs" />
+  <children>
+    <Label text="&lt; SCENES       CLIMATE       HOME &gt;" width="1200" height="72" translation="[80,48]" />
+    <Label id="status" text="UP/DOWN: temperature    OK: mode" width="650" height="52" translation="[1190,62]" horizAlign="right" />
+    <Rectangle translation="[180,175]" width="1560" height="790" color="0x241A10E8" />
+    <Label id="name" text="No climate entity selected" width="1400" height="70" translation="[260,225]" horizAlign="center" color="0xE0A85EFF" />
+    <Label id="index" text="" width="1400" height="44" translation="[260,305]" horizAlign="center" />
+    <Label id="current" text="--" width="680" height="140" translation="[270,410]" horizAlign="center" />
+    <Label text="CURRENT" width="680" height="46" translation="[270,555]" horizAlign="center" color="0xC0B49CFF" />
+    <Label id="target" text="--" width="680" height="140" translation="[970,410]" horizAlign="center" />
+    <Label text="TARGET" width="680" height="46" translation="[970,555]" horizAlign="center" color="0xC0B49CFF" />
+    <Label id="mode" text="Mode: --" width="650" height="60" translation="[310,690]" horizAlign="center" />
+    <Label id="action" text="Action: --" width="650" height="60" translation="[960,690]" horizAlign="center" />
+    <Label id="humidity" text="" width="1400" height="55" translation="[260,800]" horizAlign="center" />
+    <Label text="At first/last thermostat, LEFT/RIGHT changes tabs" width="1400" height="45" translation="[260,890]" horizAlign="center" color="0xC0B49CFF" />
+  </children>
+</component>

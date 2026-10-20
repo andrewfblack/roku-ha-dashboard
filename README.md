@@ -6,8 +6,12 @@ A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your T
 - **Meal plan** — from a configurable HA sensor (default: `sensor.meal_plan`)
 - **Climate** — inside temperature/humidity and outside temperature/condition
 - **Weather tab** — current conditions plus configurable daily or hourly forecast
+- **Lights tab** — toggle selected lights and cycle brightness presets
+- **Scenes tab** — activate selected Home Assistant scenes and scripts
+- **Climate tab** — adjust target temperature and cycle HVAC modes
 - **Live updates** — via the Home Assistant WebSocket API
 - **Tab navigation** — move Right through the Home panels to Weather; Left returns Home
+- **Allowlisted controls** — only entities selected in the companion integration can be controlled
 - **Fall theme** — warm autumn background (`images/fall-bg.jpg`)
 
 ## 1. Home Assistant preparation

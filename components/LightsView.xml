@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="LightsView" extends="Group">
+  <interface>
+    <field id="items" type="array" onChange="onItems" />
+    <field id="tabRequest" type="string" alwaysNotify="true" />
+    <field id="commandRequest" type="assocarray" alwaysNotify="true" />
+    <field id="commandResult" type="assocarray" onChange="onCommandResult" />
+  </interface>
+  <script type="text/brightscript" uri="pkg:/components/LightsView.brs" />
+  <children>
+    <Label text="&lt; WEATHER       LIGHTS       SCENES &gt;" width="1150" height="72" translation="[80,48]" />
+    <Label id="status" text="OK: toggle    PLAY/PAUSE: brightness" width="650" height="52" translation="[1190,62]" horizAlign="right" />
+    <Group id="grid" translation="[80,160]" />
+    <Label id="empty" text="No lights selected. Configure Roku Dashboard in Home Assistant." width="1760" height="80" translation="[80,260]" visible="false" />
+  </children>
+</component>

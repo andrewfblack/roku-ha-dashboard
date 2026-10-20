@@ -6,7 +6,7 @@
   </interface>
   <script type="text/brightscript" uri="pkg:/components/WeatherView.brs" />
   <children>
-    <Label text="&lt;  HOME       WEATHER" width="900" height="72" translation="[80,48]" />
+    <Label text="&lt; HOME       WEATHER       LIGHTS &gt;" width="1100" height="72" translation="[80,48]" />
     <Label id="status" text="Loading weather from Home Assistant..." width="950" height="50" translation="[870,62]" horizAlign="right" />
 
     <Rectangle translation="[80,170]" width="620" height="830" color="0x241A10D9" />

@@ -12,6 +12,12 @@
     <field id="calendarEvents" type="array" alwaysNotify="true" />
     <field id="monthCalendar" type="assocarray" alwaysNotify="true" />
     <field id="weatherData" type="assocarray" alwaysNotify="true" />
+    <field id="tabsData" type="assocarray" alwaysNotify="true" />
+    <field id="lightsData" type="array" alwaysNotify="true" />
+    <field id="scenesData" type="array" alwaysNotify="true" />
+    <field id="climatesData" type="array" alwaysNotify="true" />
+    <field id="command" type="assocarray" alwaysNotify="true" />
+    <field id="commandResult" type="assocarray" alwaysNotify="true" />
     <field id="mealPlan" type="string" alwaysNotify="true" />
     <field id="connectionStatus" type="string" alwaysNotify="true" />
   </interface>

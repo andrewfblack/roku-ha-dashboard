@@ -128,7 +128,10 @@ end function
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
     if key = "left" or key = "back"
-        m.top.tabRequest = "home"
+        m.top.tabRequest = "previous"
+        return true
+    else if key = "right"
+        m.top.tabRequest = "next"
         return true
     end if
     return false

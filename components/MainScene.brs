@@ -5,8 +5,28 @@ sub init()
     m.setupView = m.top.FindNode("setupView")
     m.homeView = m.top.FindNode("homeView")
     m.weatherView = m.top.FindNode("weatherView")
+    m.lightsView = m.top.FindNode("lightsView")
+    m.scenesView = m.top.FindNode("scenesView")
+    m.climateView = m.top.FindNode("climateView")
+    m.views = {
+        home: m.homeView
+        weather: m.weatherView
+        lights: m.lightsView
+        scenes: m.scenesView
+        climate: m.climateView
+    }
+    m.tabOrder = ["home", "weather", "lights", "scenes", "climate"]
+    m.currentTab = "home"
+    m.tabsData = {}
+    m.commandSeq = 0
     m.homeView.ObserveField("tabRequest", "onHomeTabRequest")
     m.weatherView.ObserveField("tabRequest", "onWeatherTabRequest")
+    m.lightsView.ObserveField("tabRequest", "onLightsTabRequest")
+    m.scenesView.ObserveField("tabRequest", "onScenesTabRequest")
+    m.climateView.ObserveField("tabRequest", "onClimateTabRequest")
+    m.lightsView.ObserveField("commandRequest", "onLightsCommand")
+    m.scenesView.ObserveField("commandRequest", "onScenesCommand")
+    m.climateView.ObserveField("commandRequest", "onClimateCommand")
     ' Observe the submitted config itself. This avoids a separate Boolean
     ' signal that some Roku OS versions coalesce or fail to deliver.
     m.setupView.ObserveField("config", "onConfigSubmitted")
@@ -34,6 +54,9 @@ end sub
 sub showSetup(errorMessage as string, config as dynamic)
     m.homeView.visible = false
     m.weatherView.visible = false
+    m.lightsView.visible = false
+    m.scenesView.visible = false
+    m.climateView.visible = false
     m.setupView.visible = true
     if config <> invalid
         m.setupView.prefill = config
@@ -62,6 +85,10 @@ sub startDashboard(config as object)
     m.setupView.visible = false
     m.homeView.visible = true
     m.weatherView.visible = false
+    m.lightsView.visible = false
+    m.scenesView.visible = false
+    m.climateView.visible = false
+    m.currentTab = "home"
     m.homeView.url = config.url
     m.homeView.mealEntity = config.mealEntity
     m.homeView.SetFocus(true)
@@ -76,6 +103,11 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("calendarEvents", "onCalendarEvents")
     m.haTask.ObserveField("monthCalendar", "onMonthCalendar")
     m.haTask.ObserveField("weatherData", "onWeatherData")
+    m.haTask.ObserveField("tabsData", "onTabsData")
+    m.haTask.ObserveField("lightsData", "onLightsData")
+    m.haTask.ObserveField("scenesData", "onScenesData")
+    m.haTask.ObserveField("climatesData", "onClimatesData")
+    m.haTask.ObserveField("commandResult", "onCommandResult")
     m.haTask.ObserveField("mealPlan", "onMealPlan")
     m.haTask.ObserveField("connectionStatus", "onConnectionStatus")
     m.haTask.url = config.url
@@ -107,26 +139,108 @@ sub onWeatherData()
     m.weatherView.weatherData = m.haTask.weatherData
 end sub
 
+sub onTabsData()
+    m.tabsData = m.haTask.tabsData
+end sub
+
+sub onLightsData()
+    m.lightsView.items = m.haTask.lightsData
+end sub
+
+sub onScenesData()
+    m.scenesView.items = m.haTask.scenesData
+end sub
+
+sub onClimatesData()
+    m.climateView.items = m.haTask.climatesData
+end sub
+
 sub onHomeTabRequest()
-    if m.homeView.tabRequest = "weather" then showWeatherTab()
+    navigateTab(m.homeView.tabRequest)
 end sub
 
 sub onWeatherTabRequest()
-    if m.weatherView.tabRequest = "home" then showHomeTab()
+    navigateTab(m.weatherView.tabRequest)
+end sub
+
+sub onLightsTabRequest()
+    navigateTab(m.lightsView.tabRequest)
+end sub
+
+sub onScenesTabRequest()
+    navigateTab(m.scenesView.tabRequest)
+end sub
+
+sub onClimateTabRequest()
+    navigateTab(m.climateView.tabRequest)
 end sub
 
 sub showWeatherTab()
-    data = m.haTask.weatherData
-    if data <> invalid and data.enabled = false then return
-    m.homeView.visible = false
-    m.weatherView.visible = true
-    m.weatherView.SetFocus(true)
+    showTab("weather")
 end sub
 
 sub showHomeTab()
-    m.weatherView.visible = false
-    m.homeView.visible = true
-    m.homeView.SetFocus(true)
+    showTab("home")
+end sub
+
+sub navigateTab(direction as string)
+    currentIndex = 0
+    for i = 0 to m.tabOrder.Count() - 1
+        if m.tabOrder[i] = m.currentTab then currentIndex = i
+    end for
+    stepValue = 1
+    if direction = "previous" then stepValue = -1
+    for attempt = 1 to m.tabOrder.Count()
+        currentIndex = (currentIndex + stepValue + m.tabOrder.Count()) MOD m.tabOrder.Count()
+        candidate = m.tabOrder[currentIndex]
+        if tabEnabled(candidate)
+            showTab(candidate)
+            return
+        end if
+    end for
+end sub
+
+function tabEnabled(name as string) as boolean
+    if name = "home" then return true
+    if m.tabsData = invalid then return true
+    value = m.tabsData[name]
+    if value = invalid then return true
+    return value
+end function
+
+sub showTab(name as string)
+    for each key in m.views
+        m.views[key].visible = false
+    end for
+    view = m.views[name]
+    view.visible = true
+    view.SetFocus(true)
+    m.currentTab = name
+end sub
+
+sub sendCommand(command as object)
+    m.commandSeq = m.commandSeq + 1
+    command.request_id = m.commandSeq
+    m.haTask.command = command
+end sub
+
+sub onLightsCommand()
+    sendCommand(m.lightsView.commandRequest)
+end sub
+
+sub onScenesCommand()
+    sendCommand(m.scenesView.commandRequest)
+end sub
+
+sub onClimateCommand()
+    sendCommand(m.climateView.commandRequest)
+end sub
+
+sub onCommandResult()
+    result = m.haTask.commandResult
+    m.lightsView.commandResult = result
+    m.scenesView.commandResult = result
+    m.climateView.commandResult = result
 end sub
 
 sub onMealPlan()

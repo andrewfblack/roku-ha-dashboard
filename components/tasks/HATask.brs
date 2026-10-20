@@ -16,7 +16,7 @@ sub executeTask()
     m.url = m.top.url
     if Right(m.url, 1) = "/" then m.url = Left(m.url, Len(m.url) - 1)
     m.token = m.top.token
-    m.pairingMode = Len(m.token) <= 16
+    m.pairingMode = Len(m.token) <= 64
     m.top.lastConfig = {
         url: m.top.url
         token: m.top.token
@@ -38,10 +38,14 @@ sub executeTask()
     m.top.connectionStatus = "connected"
 
     if m.pairingMode
+        m.lastCommandId = -1
         while true
-            Sleep(30000)
-            status = FetchPairingData()
-            if status <> "ok" then m.top.connectionStatus = status
+            for tick = 1 to 120
+                Sleep(250)
+                ProcessPendingCommand()
+            end for
+            refreshStatus = FetchPairingData()
+            if refreshStatus <> "ok" then m.top.connectionStatus = refreshStatus
         end while
     end if
 
@@ -105,12 +109,52 @@ function HttpGetPublic(path as string) as object
     return { code: msg.GetResponseCode(), body: msg.GetString() }
 end function
 
+function HttpPostPublic(path as string, body as string) as object
+    xfer = CreateObject("roUrlTransfer")
+    xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    xfer.InitClientCertificates()
+    xfer.RetainBodyOnError(true)
+    xfer.AddHeader("Content-Type", "application/json")
+    xfer.SetUrl(m.url + path)
+    port = CreateObject("roMessagePort")
+    xfer.SetMessagePort(port)
+    if not xfer.AsyncPostFromString(body) then return { code: -1, body: "" }
+    msg = Wait(15000, port)
+    if msg = invalid or Type(msg) <> "roUrlEvent" then return { code: -2, body: "" }
+    return { code: msg.GetResponseCode(), body: msg.GetString() }
+end function
+
+sub ProcessPendingCommand()
+    command = m.top.command
+    if not IsAssociativeArray(command) or command.request_id = invalid then return
+    if command.request_id = m.lastCommandId then return
+    m.lastCommandId = command.request_id
+    commandPath = "/api/roku_dashboard/" + UrlEscape(UCase(m.token)) + "/action"
+    commandBody = FormatJson(command)
+    response = HttpPostPublic(commandPath, commandBody)
+    ok = response.code >= 200 and response.code < 300
+    m.top.commandResult = {
+        request_id: command.request_id
+        ok: ok
+        status: response.code
+    }
+    if ok then FetchPairingData()
+end sub
+
 function FetchPairingData() as string
     resp = HttpGetPublic("/api/roku_dashboard/" + UrlEscape(UCase(m.token)))
     if resp.code = 401 then return "auth_error"
     if resp.code < 200 or resp.code >= 300 then return "network_error"
     data = ParseJson(resp.body)
     if not IsAssociativeArray(data) or data.ok <> true then return "network_error"
+
+    if data.device_token <> invalid and data.device_token <> ""
+        m.token = UCase(data.device_token.ToStr())
+        section = CreateObject("roRegistrySection", "haDashboard")
+        section.Write("token", m.token)
+        section.Flush()
+        print "HA TASK: pairing upgraded to secure device credential"
+    end if
 
     states = data.states
     if not IsAssociativeArray(states) then states = {}
@@ -143,6 +187,10 @@ function FetchPairingData() as string
     if IsAssociativeArray(data.weather)
         m.top.weatherData = data.weather
     end if
+    if IsAssociativeArray(data.tabs) then m.top.tabsData = data.tabs
+    if IsArray(data.lights) then m.top.lightsData = data.lights
+    if IsArray(data.scenes) then m.top.scenesData = data.scenes
+    if IsArray(data.climates) then m.top.climatesData = data.climates
     m.top.connectionStatus = "connected"
     return "ok"
 end function

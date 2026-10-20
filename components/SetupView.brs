@@ -5,6 +5,12 @@ sub init()
     m.tokenButton = m.top.FindNode("tokenButton")
     m.connectButton = m.top.FindNode("connectButton")
     m.messageButton = m.top.FindNode("messageButton")
+    m.loginButtons = m.top.FindNode("loginButtons")
+    m.tokenEditor = m.top.FindNode("tokenEditor")
+    m.tokenInput = m.top.FindNode("tokenInput")
+    m.saveTokenButton = m.top.FindNode("saveTokenButton")
+    m.cancelTokenButton = m.top.FindNode("cancelTokenButton")
+    m.tokenHelp = m.top.FindNode("tokenHelp")
 
     m.url = "http://homeassistant.local:8123"
     m.token = ""
@@ -13,6 +19,8 @@ sub init()
     m.urlButton.ObserveField("buttonSelected", "onUrlSelected")
     m.tokenButton.ObserveField("buttonSelected", "onTokenSelected")
     m.connectButton.ObserveField("buttonSelected", "onConnectSelected")
+    m.saveTokenButton.ObserveField("buttonSelected", "onSaveToken")
+    m.cancelTokenButton.ObserveField("buttonSelected", "onCancelToken")
     renderValues()
     m.urlButton.SetFocus(true)
 end sub
@@ -45,7 +53,7 @@ sub onUrlSelected()
 end sub
 
 sub onTokenSelected()
-    openKeyboard("token")
+    openTokenEditor()
 end sub
 
 sub onConnectSelected()
@@ -80,6 +88,39 @@ sub openKeyboard(fieldName as string)
         dialog.textEditBox.secureMode = (fieldName = "token")
     end if
     dialog.SetFocus(true)
+end sub
+
+sub openTokenEditor()
+    m.tokenEditing = true
+    m.tokenEditor.visible = true
+    m.tokenInput.text = m.token
+    m.tokenInput.cursorPosition = Len(m.token)
+    m.tokenInput.maxTextLength = 1024
+    m.tokenInput.secureMode = true
+    m.tokenInput.SetFocus(true)
+end sub
+
+sub onSaveToken()
+    value = m.tokenInput.text.Trim()
+    if value = ""
+        m.tokenHelp.text = "TOKEN CANNOT BE EMPTY - PASTE IT ABOVE"
+        m.tokenInput.SetFocus(true)
+        return
+    end if
+    m.token = value
+    closeTokenEditor()
+    renderValues()
+    m.messageButton.text = "Token saved - " + Len(m.token).ToStr() + " characters"
+end sub
+
+sub onCancelToken()
+    closeTokenEditor()
+end sub
+
+sub closeTokenEditor()
+    m.tokenEditing = false
+    m.tokenEditor.visible = false
+    m.tokenButton.SetFocus(true)
 end sub
 
 sub onKeyboardButton()
@@ -122,3 +163,24 @@ sub saveAndConnect()
         outsideEntity: ""
     }
 end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not press or not m.tokenEditing then return false
+    if key = "down" and m.tokenInput.IsInFocusChain()
+        m.saveTokenButton.SetFocus(true)
+        return true
+    else if key = "up" and (m.saveTokenButton.IsInFocusChain() or m.cancelTokenButton.IsInFocusChain())
+        m.tokenInput.SetFocus(true)
+        return true
+    else if key = "right" and m.saveTokenButton.IsInFocusChain()
+        m.cancelTokenButton.SetFocus(true)
+        return true
+    else if key = "left" and m.cancelTokenButton.IsInFocusChain()
+        m.saveTokenButton.SetFocus(true)
+        return true
+    else if key = "back"
+        closeTokenEditor()
+        return true
+    end if
+    return false
+end function

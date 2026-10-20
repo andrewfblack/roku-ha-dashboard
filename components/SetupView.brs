@@ -27,6 +27,21 @@ sub onErrorMessage()
     if m.top.errorMessage <> "" then m.messageButton.text = m.top.errorMessage
 end sub
 
+sub onInputActive()
+    active = m.top.inputActive
+    m.urlButton.focusable = active
+    m.codeButton.focusable = active
+    m.connectButton.focusable = active
+    if active
+        m.urlButton.SetFocus(true)
+    else
+        ' Clear focus from the hidden setup button before MainScene takes it.
+        m.urlButton.SetFocus(false)
+        m.codeButton.SetFocus(false)
+        m.connectButton.SetFocus(false)
+    end if
+end sub
+
 sub renderValues()
     m.urlButton.text = "HOME ASSISTANT URL:  " + m.url
     if m.code = ""

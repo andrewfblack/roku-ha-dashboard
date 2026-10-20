@@ -4,6 +4,7 @@
     <field id="config" type="assocarray" alwaysNotify="true" />
     <field id="prefill" type="assocarray" onChange="onPrefill" />
     <field id="errorMessage" type="string" onChange="onErrorMessage" />
+    <field id="inputActive" type="boolean" value="true" onChange="onInputActive" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/SetupView.brs" />
   <children>

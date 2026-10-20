@@ -2,6 +2,7 @@
 ' Loads saved HA config from the registry, routes between SetupView and
 ' HomeView, and relays Home Assistant data from HATask into the UI.
 sub init()
+    m.top.focusable = true
     m.setupView = m.top.FindNode("setupView")
     m.homeView = m.top.FindNode("homeView")
     m.weatherView = m.top.FindNode("weatherView")
@@ -58,6 +59,7 @@ sub showSetup(errorMessage as string, config as dynamic)
     m.scenesView.visible = false
     m.climateView.visible = false
     m.setupView.visible = true
+    m.setupView.inputActive = true
     if config <> invalid
         m.setupView.prefill = config
     end if
@@ -82,6 +84,7 @@ end sub
 
 sub startDashboard(config as object)
     print "MAIN: startDashboard"
+    m.setupView.inputActive = false
     m.setupView.visible = false
     m.homeView.visible = true
     m.weatherView.visible = false

@@ -6,5 +6,6 @@
     <Rectangle id="scrim" width="1920" height="1080" color="0x140D07B0" />
     <SetupView id="setupView" visible="false" />
     <HomeView id="homeView" visible="false" />
+    <WeatherView id="weatherView" visible="false" />
   </children>
 </component>

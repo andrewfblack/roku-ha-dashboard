@@ -287,7 +287,11 @@ end sub
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
     if key = "right"
-        SetFocusIndex((m.focusIndex + 1) MOD m.rings.Count())
+        if m.focusIndex = m.rings.Count() - 1
+            m.top.tabRequest = "weather"
+        else
+            SetFocusIndex(m.focusIndex + 1)
+        end if
         return true
     else if key = "left"
         SetFocusIndex((m.focusIndex + m.rings.Count() - 1) MOD m.rings.Count())

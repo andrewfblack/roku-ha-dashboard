@@ -9,10 +9,11 @@
     <field id="monthCalendar" type="assocarray" onChange="onMonthCalendar" />
     <field id="mealPlan" type="string" onChange="onMealPlan" />
     <field id="connectionStatus" type="string" onChange="onConnectionStatus" />
+    <field id="tabRequest" type="string" alwaysNotify="true" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/HomeView.brs" />
   <children>
-    <Label id="titleLabel" text="Home" horizAlign="left" width="700" height="72" translation="[80,48]">
+    <Label id="titleLabel" text="HOME       WEATHER  &gt;" horizAlign="left" width="900" height="72" translation="[80,48]">
     </Label>
     <Label id="dateLabel" text="" horizAlign="right" width="800" height="46" translation="[1040,62]">
     </Label>

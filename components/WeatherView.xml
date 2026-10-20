@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="WeatherView" extends="Group">
+  <interface>
+    <field id="weatherData" type="assocarray" onChange="onWeatherData" />
+    <field id="tabRequest" type="string" alwaysNotify="true" />
+  </interface>
+  <script type="text/brightscript" uri="pkg:/components/WeatherView.brs" />
+  <children>
+    <Label text="&lt;  HOME       WEATHER" width="900" height="72" translation="[80,48]" />
+    <Label id="status" text="Loading weather from Home Assistant..." width="950" height="50" translation="[870,62]" horizAlign="right" />
+
+    <Rectangle translation="[80,170]" width="620" height="830" color="0x241A10D9" />
+    <Label id="weatherName" text="WEATHER" width="550" height="50" color="0xE0A85EFF" translation="[115,205]" />
+    <Label id="currentTemp" text="--" width="550" height="130" translation="[115,285]" />
+    <Label id="currentCondition" text="Unknown" width="550" height="62" translation="[115,435]" />
+    <Label id="currentHumidity" text="" width="550" height="48" translation="[115,535]" />
+    <Label id="currentWind" text="" width="550" height="48" translation="[115,605]" />
+    <Label id="currentPressure" text="" width="550" height="48" translation="[115,675]" />
+    <Label id="currentVisibility" text="" width="550" height="48" translation="[115,745]" />
+
+    <Rectangle translation="[740,170]" width="1100" height="830" color="0x241A10D9" />
+    <Label id="forecastHeader" text="FORECAST" width="1020" height="50" color="0xE0A85EFF" translation="[780,205]" />
+    <Group id="forecastRows" translation="[780,275]" />
+    <Label text="Press LEFT to return Home" width="700" height="42" color="0xC0B49CFF" translation="[1100,950]" horizAlign="right" />
+  </children>
+</component>

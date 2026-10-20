@@ -4,6 +4,9 @@
 sub init()
     m.setupView = m.top.FindNode("setupView")
     m.homeView = m.top.FindNode("homeView")
+    m.weatherView = m.top.FindNode("weatherView")
+    m.homeView.ObserveField("tabRequest", "onHomeTabRequest")
+    m.weatherView.ObserveField("tabRequest", "onWeatherTabRequest")
     ' Observe the submitted config itself. This avoids a separate Boolean
     ' signal that some Roku OS versions coalesce or fail to deliver.
     m.setupView.ObserveField("config", "onConfigSubmitted")
@@ -30,6 +33,7 @@ end sub
 
 sub showSetup(errorMessage as string, config as dynamic)
     m.homeView.visible = false
+    m.weatherView.visible = false
     m.setupView.visible = true
     if config <> invalid
         m.setupView.prefill = config
@@ -57,6 +61,7 @@ sub startDashboard(config as object)
     print "MAIN: startDashboard"
     m.setupView.visible = false
     m.homeView.visible = true
+    m.weatherView.visible = false
     m.homeView.url = config.url
     m.homeView.mealEntity = config.mealEntity
     m.homeView.SetFocus(true)
@@ -70,6 +75,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("resolvedEntities", "onResolvedEntities")
     m.haTask.ObserveField("calendarEvents", "onCalendarEvents")
     m.haTask.ObserveField("monthCalendar", "onMonthCalendar")
+    m.haTask.ObserveField("weatherData", "onWeatherData")
     m.haTask.ObserveField("mealPlan", "onMealPlan")
     m.haTask.ObserveField("connectionStatus", "onConnectionStatus")
     m.haTask.url = config.url
@@ -95,6 +101,32 @@ end sub
 
 sub onMonthCalendar()
     m.homeView.monthCalendar = m.haTask.monthCalendar
+end sub
+
+sub onWeatherData()
+    m.weatherView.weatherData = m.haTask.weatherData
+end sub
+
+sub onHomeTabRequest()
+    if m.homeView.tabRequest = "weather" then showWeatherTab()
+end sub
+
+sub onWeatherTabRequest()
+    if m.weatherView.tabRequest = "home" then showHomeTab()
+end sub
+
+sub showWeatherTab()
+    data = m.haTask.weatherData
+    if data <> invalid and data.enabled = false then return
+    m.homeView.visible = false
+    m.weatherView.visible = true
+    m.weatherView.SetFocus(true)
+end sub
+
+sub showHomeTab()
+    m.weatherView.visible = false
+    m.homeView.visible = true
+    m.homeView.SetFocus(true)
 end sub
 
 sub onMealPlan()

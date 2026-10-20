@@ -5,7 +5,9 @@ A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your T
 - **Calendar** — today's next three events plus a current-month overview with event markers
 - **Meal plan** — from a configurable HA sensor (default: `sensor.meal_plan`)
 - **Climate** — inside temperature/humidity and outside temperature/condition
+- **Weather tab** — current conditions plus configurable daily or hourly forecast
 - **Live updates** — via the Home Assistant WebSocket API
+- **Tab navigation** — move Right through the Home panels to Weather; Left returns Home
 - **Fall theme** — warm autumn background (`images/fall-bg.jpg`)
 
 ## 1. Home Assistant preparation

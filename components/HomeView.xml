@@ -6,6 +6,7 @@
     <field id="states" type="assocarray" onChange="onStates" />
     <field id="resolvedEntities" type="assocarray" onChange="onResolvedEntities" />
     <field id="calendarEvents" type="array" onChange="onCalendarEvents" />
+    <field id="monthCalendar" type="assocarray" onChange="onMonthCalendar" />
     <field id="mealPlan" type="string" onChange="onMealPlan" />
     <field id="connectionStatus" type="string" onChange="onConnectionStatus" />
   </interface>
@@ -23,17 +24,17 @@
     <Rectangle id="calendarPanel" translation="[80,170]" width="900" height="830" color="0x241A10D9" />
     <Label id="calendarHeader" text="TODAY'S CALENDAR" horizAlign="left" width="820" height="44" color="0xE0A85EFF" translation="[110,196]">
     </Label>
-    <Label id="row0Time" text="" horizAlign="left" width="210" height="84" translation="[110,268]">
+    <Label id="row0Time" text="" horizAlign="left" width="210" height="64" translation="[110,260]">
     </Label>
-    <Label id="row0Title" text="" horizAlign="left" width="620" height="94" wrap="true" maxLines="2" translation="[330,262]">
+    <Label id="row0Title" text="" horizAlign="left" width="620" height="70" wrap="true" maxLines="2" translation="[330,254]">
     </Label>
-    <Label id="row1Time" text="" horizAlign="left" width="210" height="84" translation="[110,418]">
+    <Label id="row1Time" text="" horizAlign="left" width="210" height="64" translation="[110,350]">
     </Label>
-    <Label id="row1Title" text="" horizAlign="left" width="620" height="94" wrap="true" maxLines="2" translation="[330,412]">
+    <Label id="row1Title" text="" horizAlign="left" width="620" height="70" wrap="true" maxLines="2" translation="[330,344]">
     </Label>
-    <Label id="row2Time" text="" horizAlign="left" width="210" height="84" translation="[110,568]">
+    <Label id="row2Time" text="" horizAlign="left" width="210" height="64" translation="[110,440]">
     </Label>
-    <Label id="row2Title" text="" horizAlign="left" width="620" height="94" wrap="true" maxLines="2" translation="[330,562]">
+    <Label id="row2Title" text="" horizAlign="left" width="620" height="70" wrap="true" maxLines="2" translation="[330,434]">
     </Label>
     <Label id="row3Time" text="" horizAlign="left" width="210" height="84" translation="[110,718]">
     </Label>
@@ -43,8 +44,13 @@
     </Label>
     <Label id="row4Title" text="" horizAlign="left" width="620" height="94" wrap="true" maxLines="2" translation="[330,862]">
     </Label>
-    <Label id="calendarEmpty" text="No events today" horizAlign="left" width="820" height="60" color="0xC0B49CFF" translation="[110,262]">
+    <Label id="calendarEmpty" text="No events today" horizAlign="left" width="820" height="60" color="0xC0B49CFF" translation="[110,260]">
     </Label>
+
+    <Rectangle translation="[110,520]" width="820" height="2" color="0x806B50FF" />
+    <Label id="monthTitle" text="" horizAlign="center" width="820" height="46" color="0xE0A85EFF" translation="[110,540]">
+    </Label>
+    <Group id="monthGrid" translation="[110,598]" />
 
     <!-- Meal panel -->
     <Rectangle id="mealRing" translation="[1016,166]" width="828" height="388" color="0xE0913EFF" visible="false" />

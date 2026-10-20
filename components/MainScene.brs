@@ -69,6 +69,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("states", "onStates")
     m.haTask.ObserveField("resolvedEntities", "onResolvedEntities")
     m.haTask.ObserveField("calendarEvents", "onCalendarEvents")
+    m.haTask.ObserveField("monthCalendar", "onMonthCalendar")
     m.haTask.ObserveField("mealPlan", "onMealPlan")
     m.haTask.ObserveField("connectionStatus", "onConnectionStatus")
     m.haTask.url = config.url
@@ -90,6 +91,10 @@ end sub
 
 sub onCalendarEvents()
     m.homeView.calendarEvents = m.haTask.calendarEvents
+end sub
+
+sub onMonthCalendar()
+    m.homeView.monthCalendar = m.haTask.monthCalendar
 end sub
 
 sub onMealPlan()

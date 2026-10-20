@@ -23,6 +23,10 @@ sub init()
     m.outsideDetail = m.top.FindNode("outsideDetail")
     m.statusLabel = m.top.FindNode("statusLabel")
     m.dateLabel = m.top.FindNode("dateLabel")
+    m.monthTitle = m.top.FindNode("monthTitle")
+    m.monthGrid = m.top.FindNode("monthGrid")
+    m.monthDayLabels = []
+    buildMonthGrid()
 
     m.rings = [
         m.top.FindNode("calendarRing")
@@ -55,6 +59,11 @@ sub onCalendarEvents()
     RenderCalendar()
 end sub
 
+sub onMonthCalendar()
+    value = m.top.monthCalendar
+    if value <> invalid then RenderMonth(value)
+end sub
+
 sub onMealPlan()
     meal = m.top.mealPlan
     if meal = invalid or meal = "" or meal = "unknown" or meal = "unavailable"
@@ -80,7 +89,7 @@ end sub
 sub RenderCalendar()
     count = m.events.Count()
     for i = 0 to 4
-        visible = i < count
+        visible = i < count and i < 3
         m.rowTimes[i].visible = visible
         m.rowTitles[i].visible = visible
         if visible
@@ -91,6 +100,64 @@ sub RenderCalendar()
     end for
     m.calendarEmpty.visible = (count = 0)
 end sub
+
+sub buildMonthGrid()
+    weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+    cellWidth = 117
+    for col = 0 to 6
+        label = m.monthGrid.CreateChild("Label")
+        label.text = weekdays[col]
+        label.width = 112
+        label.height = 34
+        label.horizAlign = "center"
+        label.color = "0xC0B49CFF"
+        label.translation = [col * cellWidth, 0]
+    end for
+
+    for index = 0 to 41
+        label = m.monthGrid.CreateChild("Label")
+        label.text = ""
+        label.width = 112
+        label.height = 42
+        label.horizAlign = "center"
+        label.translation = [(index MOD 7) * cellWidth, 42 + Int(index / 7) * 52]
+        m.monthDayLabels.Push(label)
+    end for
+end sub
+
+sub RenderMonth(month as object)
+    if month.title <> invalid then m.monthTitle.text = month.title.ToStr()
+    firstWeekday = month.first_weekday
+    daysInMonth = month.days_in_month
+    today = month.today
+    eventDays = month.event_days
+    if eventDays = invalid then eventDays = []
+
+    for index = 0 to 41
+        label = m.monthDayLabels[index]
+        day = index - firstWeekday + 1
+        if day < 1 or day > daysInMonth
+            label.text = ""
+        else
+            text = day.ToStr()
+            if ArrayContainsNumber(eventDays, day) then text = text + "*"
+            if day = today
+                label.text = "[" + text + "]"
+                label.color = "0xFFD080FF"
+            else
+                label.text = text
+                label.color = "0xFFFFFFFF"
+            end if
+        end if
+    end for
+end sub
+
+function ArrayContainsNumber(values as object, wanted as integer) as boolean
+    for each value in values
+        if value = wanted then return true
+    end for
+    return false
+end function
 
 sub UpdateClimate()
     ' --- Inside ---

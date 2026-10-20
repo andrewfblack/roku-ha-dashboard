@@ -10,6 +10,7 @@
     <field id="states" type="assocarray" alwaysNotify="true" />
     <field id="resolvedEntities" type="assocarray" alwaysNotify="true" />
     <field id="calendarEvents" type="array" alwaysNotify="true" />
+    <field id="monthCalendar" type="assocarray" alwaysNotify="true" />
     <field id="mealPlan" type="string" alwaysNotify="true" />
     <field id="connectionStatus" type="string" alwaysNotify="true" />
   </interface>

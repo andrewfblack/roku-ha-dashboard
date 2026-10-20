@@ -137,6 +137,9 @@ function FetchPairingData() as string
         end for
     end if
     m.top.calendarEvents = events
+    if IsAssociativeArray(data.month_calendar)
+        m.top.monthCalendar = data.month_calendar
+    end if
     m.top.connectionStatus = "connected"
     return "ok"
 end function

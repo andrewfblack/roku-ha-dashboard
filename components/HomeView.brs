@@ -28,6 +28,16 @@ sub init()
     m.monthGrid = m.top.FindNode("monthGrid")
     m.monthDayLabels = []
     buildMonthGrid()
+    m.monthAgenda = m.top.FindNode("monthAgenda")
+    m.agendaTitle = m.top.FindNode("agendaTitle")
+    m.agendaCount = m.top.FindNode("agendaCount")
+    m.agendaRowsGroup = m.top.FindNode("agendaRows")
+    m.agendaRows = []
+    m.monthEvents = []
+    m.agendaIndex = 0
+    m.agendaOffset = 0
+    m.agendaOpen = false
+    buildAgendaRows()
 
     m.rings = [
         m.top.FindNode("calendarRing")
@@ -62,7 +72,11 @@ end sub
 
 sub onMonthCalendar()
     value = m.top.monthCalendar
-    if value <> invalid then RenderMonth(value)
+    if value <> invalid
+        if value.events <> invalid then m.monthEvents = value.events else m.monthEvents = []
+        RenderMonth(value)
+        if m.agendaOpen then RenderAgenda()
+    end if
 end sub
 
 sub onMealPlan()
@@ -158,6 +172,91 @@ function ArrayContainsNumber(values as object, wanted as integer) as boolean
         if value = wanted then return true
     end for
     return false
+end function
+
+sub buildAgendaRows()
+    for i = 0 to 7
+        y = i * 82
+        focus = m.agendaRowsGroup.CreateChild("Rectangle")
+        focus.translation = [0, y]
+        focus.width = 1580
+        focus.height = 72
+        focus.color = "0xD78335FF"
+        focus.visible = false
+        panel = m.agendaRowsGroup.CreateChild("Rectangle")
+        panel.translation = [6, y + 6]
+        panel.width = 1568
+        panel.height = 60
+        if i MOD 2 = 0 then panel.color = "0x382A1DFF" else panel.color = "0x2B2118FF"
+        dateLabel = m.agendaRowsGroup.CreateChild("Label")
+        dateLabel.translation = [24, y + 14]
+        dateLabel.width = 330
+        dateLabel.height = 48
+        titleLabel = m.agendaRowsGroup.CreateChild("Label")
+        titleLabel.translation = [370, y + 14]
+        titleLabel.width = 1170
+        titleLabel.height = 48
+        m.agendaRows.Push({ focus: focus, panel: panel, date: dateLabel, title: titleLabel })
+    end for
+end sub
+
+sub OpenAgenda()
+    m.agendaOpen = true
+    m.agendaIndex = 0
+    m.agendaOffset = 0
+    m.monthAgenda.visible = true
+    RenderAgenda()
+end sub
+
+sub CloseAgenda()
+    m.agendaOpen = false
+    m.monthAgenda.visible = false
+end sub
+
+sub RenderAgenda()
+    m.agendaCount.text = m.monthEvents.Count().ToStr() + " events"
+    if m.top.monthCalendar <> invalid and m.top.monthCalendar.title <> invalid
+        m.agendaTitle.text = UCase(m.top.monthCalendar.title.ToStr()) + " AGENDA"
+    end if
+    for rowIndex = 0 to 7
+        eventIndex = m.agendaOffset + rowIndex
+        row = m.agendaRows[rowIndex]
+        visible = eventIndex < m.monthEvents.Count()
+        row.focus.visible = visible and eventIndex = m.agendaIndex
+        row.panel.visible = visible
+        row.date.visible = visible
+        row.title.visible = visible
+        if visible
+            event = m.monthEvents[eventIndex]
+            row.date.text = AgendaDate(event.start, event.all_day)
+            row.title.text = event.title
+        end if
+    end for
+end sub
+
+function AgendaDate(startValue as dynamic, allDayValue as dynamic) as string
+    value = startValue.ToStr()
+    if Len(value) < 10 then return value
+    result = Mid(value, 6, 2) + "/" + Mid(value, 9, 2)
+    if allDayValue = true then return result + "  All day"
+    if Len(value) >= 16 then result = result + "  " + Mid(value, 12, 5)
+    return result
+end function
+
+function HandleAgendaKey(key as string) as boolean
+    count = m.monthEvents.Count()
+    if key = "back" or key = "left"
+        CloseAgenda()
+    else if key = "up" and m.agendaIndex > 0
+        m.agendaIndex = m.agendaIndex - 1
+        if m.agendaIndex < m.agendaOffset then m.agendaOffset = m.agendaIndex
+        RenderAgenda()
+    else if key = "down" and m.agendaIndex + 1 < count
+        m.agendaIndex = m.agendaIndex + 1
+        if m.agendaIndex >= m.agendaOffset + 8 then m.agendaOffset = m.agendaIndex - 7
+        RenderAgenda()
+    end if
+    return true
 end function
 
 sub UpdateClimate()
@@ -287,6 +386,7 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    if m.agendaOpen then return HandleAgendaKey(key)
     if key = "right"
         if m.focusIndex = m.rings.Count() - 1
             m.top.tabRequest = "next"
@@ -300,6 +400,9 @@ function onKeyEvent(key as string, press as boolean) as boolean
         else
             SetFocusIndex(m.focusIndex - 1)
         end if
+        return true
+    else if key = "OK" and m.focusIndex = 0
+        OpenAgenda()
         return true
     end if
     return false

@@ -2,7 +2,8 @@
 
 A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your TV:
 
-- **Calendar** — today's next three events plus a current-month overview with event markers
+- **Calendar** — today's next three events, a current-month overview with event
+  markers, and an OK-activated scrollable list of every event that month
 - **Meal plan** — from a configurable HA sensor (default: `sensor.meal_plan`)
 - **Climate** — inside temperature/humidity and outside temperature/condition
 - **Weather tab** — current conditions plus configurable daily or hourly forecast

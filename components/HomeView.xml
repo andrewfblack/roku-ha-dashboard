@@ -82,5 +82,15 @@
     </Label>
     <Label id="outsideDetail" text="" horizAlign="left" width="340" height="40" color="0xC0B49CFF" translation="[1460,844]">
     </Label>
+
+    <!-- Full-month agenda overlay opened by OK on the calendar panel. -->
+    <Group id="monthAgenda" visible="false">
+      <Rectangle width="1920" height="1080" color="0x100A06FA" />
+      <Rectangle translation="[110,90]" width="1700" height="900" color="0x241A10FF" />
+      <Label id="agendaTitle" text="MONTH AGENDA" width="1580" height="70" translation="[170,125]" color="0xE0A85EFF" />
+      <Label id="agendaCount" text="" width="500" height="55" translation="[1250,135]" horizAlign="right" color="0xC0B49CFF" />
+      <Group id="agendaRows" translation="[170,220]" />
+      <Label text="UP/DOWN: scroll     BACK or LEFT: close" width="1580" height="50" translation="[170,920]" horizAlign="center" color="0xC0B49CFF" />
+    </Group>
   </children>
 </component>

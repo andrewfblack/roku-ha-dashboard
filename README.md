@@ -59,11 +59,12 @@ If you leave the inside/outside entity fields blank:
    (`rokudev` + your dev password), and upload the zip under **Development
    Application Installer**. The channel launches automatically.
 
-On first launch the **Setup** screen appears: enter your HA URL
-(e.g. `http://homeassistant.local:8123`) and token. Press **OK** on a field to
-type, **Back** to dismiss the keyboard. Everything is saved on the device, so
-setup only happens once (or after a failed login — the app returns to setup
-with your values pre-filled).
+On first launch the **Connect to Home Assistant** screen appears. It has only
+two fields: your HA URL (e.g. `http://192.168.1.50:8123`) and access token.
+Use Up/Down to select a field and press **OK** to open Roku's native keyboard.
+Choose **SAVE** in the keyboard when finished, then select **CONNECT**. The
+token is masked on the TV after entry. Everything is saved on the device, so
+setup only happens once (or after a failed login, when the values are restored).
 
 ## 3. Debugging
 

@@ -23,6 +23,7 @@ sub onItems()
     m.items = m.top.items
     if m.items = invalid then m.items = []
     if m.focusIndex >= m.items.Count() then m.focusIndex = 0
+    print "SCENES UI: "; m.items.Count(); " configured items"
     m.empty.visible = m.items.Count() = 0
     for i = 0 to 11
         visible = i < m.items.Count() : card = m.cards[i]

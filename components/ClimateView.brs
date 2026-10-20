@@ -11,6 +11,7 @@ sub onItems()
     m.items = m.top.items
     if m.items = invalid then m.items = []
     if m.focusIndex >= m.items.Count() then m.focusIndex = 0
+    print "CLIMATE UI: "; m.items.Count(); " configured items"
     renderClimate()
 end sub
 

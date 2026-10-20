@@ -237,6 +237,7 @@ end function
 sub sendCommand(command as object)
     m.commandSeq = m.commandSeq + 1
     command.request_id = m.commandSeq
+    print "COMMAND UI: "; command.action; " -> "; command.entity_id; " #"; m.commandSeq
     m.haTask.command = command
 end sub
 

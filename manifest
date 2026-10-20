@@ -1,7 +1,7 @@
 title=HA Home Dashboard
 major_version=1
 minor_version=0
-build_version=16
+build_version=17
 minor_description=Home Assistant dashboard for your TV
 ui_resolutions=fhd
 splash_screen_hd=pkg:/images/fall-bg.jpg

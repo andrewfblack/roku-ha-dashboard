@@ -43,6 +43,7 @@ sub onItems()
     m.items = m.top.items
     if m.items = invalid then m.items = []
     if m.focusIndex >= m.items.Count() then m.focusIndex = 0
+    print "LIGHTS UI: "; m.items.Count(); " configured items"
     m.empty.visible = (m.items.Count() = 0)
     for i = 0 to m.cards.Count() - 1
         card = m.cards[i]

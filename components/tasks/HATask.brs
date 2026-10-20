@@ -129,10 +129,12 @@ sub ProcessPendingCommand()
     if not IsAssociativeArray(command) or command.request_id = invalid then return
     if command.request_id = m.lastCommandId then return
     m.lastCommandId = command.request_id
+    print "COMMAND TASK: received "; command.action; " -> "; command.entity_id
     commandPath = "/api/roku_dashboard/" + UrlEscape(UCase(m.token)) + "/action"
     commandBody = FormatJson(command)
     response = HttpPostPublic(commandPath, commandBody)
     ok = response.code >= 200 and response.code < 300
+    print "COMMAND HTTP: status="; response.code; " body="; response.body
     m.top.commandResult = {
         request_id: command.request_id
         ok: ok

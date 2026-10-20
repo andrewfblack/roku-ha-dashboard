@@ -8,10 +8,10 @@
 ' Publishes results through interface fields observed by MainScene.
 
 sub init()
-    m.top.functionName = "run"
+    m.top.functionName = "executeTask"
 end sub
 
-sub run()
+sub executeTask()
     m.url = m.top.url
     if Right(m.url, 1) = "/" then m.url = Left(m.url, Len(m.url) - 1)
     m.token = m.top.token
@@ -331,7 +331,7 @@ function RunWebsocket() as boolean
         if Type(msg) = "roWebSocketEvent"
             t = msg.GetType()
             if t = 1 ' opened
-                ws.Send(CreateJson({ type: "auth", access_token: m.token }))
+                ws.Send(FormatJson({ type: "auth", access_token: m.token }))
             else if t = 5 ' text received
                 info = msg.GetInfo()
                 if not HandleWsText(info.Text, ws)
@@ -341,7 +341,7 @@ function RunWebsocket() as boolean
             else if t = 9 ' timer
                 ws.SetTimer("keepalive", 30000, true)
                 if m.wsAuthDone
-                    ws.Send(CreateJson({ type: "ping" }))
+                    ws.Send(FormatJson({ type: "ping" }))
                 end if
                 if refreshTimer.TotalSeconds() > 900
                     refreshTimer.Mark()
@@ -361,7 +361,7 @@ function HandleWsText(text as string, ws as object) as boolean
     mt = msg.type
     if mt = "auth_ok"
         m.wsAuthDone = true
-        ws.Send(CreateJson({ id: 1, type: "subscribe_events", event_type: "state_changed" }))
+        ws.Send(FormatJson({ id: 1, type: "subscribe_events", event_type: "state_changed" }))
     else if mt = "auth_invalid"
         m.top.connectionStatus = "auth_error"
         return false
@@ -408,3 +408,15 @@ sub ApplyStateChange(entityId as string, newstate as dynamic)
         if needsResolve then ResolveEntities()
     end if
 end sub
+
+' BrightScript has Type()/GetInterface(), but no portable IsArray or
+' IsAssociativeArray globals across Roku OS versions.
+function IsArray(value as dynamic) as boolean
+    t = Type(value)
+    return t = "roArray" or t = "Array"
+end function
+
+function IsAssociativeArray(value as dynamic) as boolean
+    t = Type(value)
+    return t = "roAssociativeArray" or t = "AssociativeArray"
+end function

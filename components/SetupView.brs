@@ -1,24 +1,20 @@
-' SetupView: compact first-run login screen.
-' It uses Roku's native KeyboardDialog rather than bare TextEditBox nodes;
-' this keeps the form readable in every display mode and makes long token
-' entry/paste work reliably with the Roku mobile app.
+' SetupView uses native focusable Button controls. Selecting URL or token
+' opens Roku's KeyboardDialog, which supports remote and mobile-app input.
 sub init()
-    m.urlValue = m.top.FindNode("urlValue")
-    m.tokenValue = m.top.FindNode("tokenValue")
-    m.errorLabel = m.top.FindNode("errorLabel")
-    m.focusRings = [
-        m.top.FindNode("urlFocus")
-        m.top.FindNode("tokenFocus")
-        m.top.FindNode("connectFocus")
-    ]
+    m.urlButton = m.top.FindNode("urlButton")
+    m.tokenButton = m.top.FindNode("tokenButton")
+    m.connectButton = m.top.FindNode("connectButton")
+    m.messageButton = m.top.FindNode("messageButton")
 
     m.url = "http://homeassistant.local:8123"
     m.token = ""
-    m.focusIndex = 0
     m.editingField = ""
+
+    m.urlButton.ObserveField("buttonSelected", "onUrlSelected")
+    m.tokenButton.ObserveField("buttonSelected", "onTokenSelected")
+    m.connectButton.ObserveField("buttonSelected", "onConnectSelected")
     renderValues()
-    renderFocus()
-    m.top.SetFocus(true)
+    m.urlButton.SetFocus(true)
 end sub
 
 sub onPrefill()
@@ -30,47 +26,60 @@ sub onPrefill()
 end sub
 
 sub onErrorMessage()
-    m.errorLabel.text = m.top.errorMessage
-end sub
-
-sub renderValues()
-    m.urlValue.text = m.url
-    if m.token = ""
-        m.tokenValue.text = "Select to enter token"
-        m.tokenValue.color = "0x604F43FF"
-    else
-        ' Never show the credential on the TV after entry.
-        m.tokenValue.text = "Token saved  -  " + Len(m.token).ToStr() + " characters"
-        m.tokenValue.color = "0x25170FFF"
+    if m.top.errorMessage <> ""
+        m.messageButton.text = m.top.errorMessage
     end if
 end sub
 
-sub renderFocus()
-    for i = 0 to m.focusRings.Count() - 1
-        m.focusRings[i].visible = (i = m.focusIndex)
-    end for
+sub renderValues()
+    m.urlButton.text = "HOME ASSISTANT URL:  " + m.url
+    if m.token = ""
+        m.tokenButton.text = "ACCESS TOKEN:  NOT ENTERED"
+    else
+        m.tokenButton.text = "ACCESS TOKEN:  SAVED (" + Len(m.token).ToStr() + " CHARACTERS)"
+    end if
+end sub
+
+sub onUrlSelected()
+    openKeyboard("url")
+end sub
+
+sub onTokenSelected()
+    openKeyboard("token")
+end sub
+
+sub onConnectSelected()
+    saveAndConnect()
 end sub
 
 sub openKeyboard(fieldName as string)
     m.editingField = fieldName
     dialog = CreateObject("roSGNode", "KeyboardDialog")
+    if dialog = invalid
+        m.messageButton.text = "This Roku could not open its keyboard"
+        return
+    end if
+
     if fieldName = "url"
-        dialog.title = "Home Assistant URL"
+        dialog.title = "Enter Home Assistant URL"
         dialog.text = m.url
     else
-        dialog.title = "Long-Lived Access Token"
+        dialog.title = "Enter Long-Lived Access Token"
         dialog.text = m.token
     end if
     dialog.buttons = ["SAVE", "CANCEL"]
-    dialog.optionsDialog = true
+    dialog.ObserveField("buttonSelected", "onKeyboardButton")
+    m.keyboardDialog = dialog
+
+    ' Attach first so the internal TextEditBox is fully created.
+    scene = m.top.GetScene()
+    scene.dialog = dialog
     if dialog.textEditBox <> invalid
         dialog.textEditBox.maxTextLength = 1024
         dialog.textEditBox.clearOnDownKey = false
         dialog.textEditBox.secureMode = (fieldName = "token")
     end if
-    dialog.ObserveField("buttonSelected", "onKeyboardButton")
-    m.keyboardDialog = dialog
-    m.top.GetScene().dialog = dialog
+    dialog.SetFocus(true)
 end sub
 
 sub onKeyboardButton()
@@ -80,30 +89,30 @@ sub onKeyboardButton()
         value = dialog.text.Trim()
         if m.editingField = "url"
             m.url = value
-        else if m.editingField = "token"
+        else
             m.token = value
         end if
         renderValues()
-        m.errorLabel.text = ""
+        m.messageButton.text = "Value saved - select CONNECT when ready"
     end if
     dialog.close = true
     m.keyboardDialog = invalid
     m.editingField = ""
-    m.top.SetFocus(true)
+    if m.urlButton <> invalid then m.urlButton.SetFocus(true)
 end sub
 
-sub onSave()
+sub saveAndConnect()
     url = m.url.Trim()
     token = m.token.Trim()
-    m.errorLabel.text = ""
     if url = "" or token = ""
-        m.errorLabel.text = "Both the Home Assistant URL and access token are required."
+        m.messageButton.text = "URL AND ACCESS TOKEN ARE BOTH REQUIRED"
         return
     end if
     if Left(url, 7) <> "http://" and Left(url, 8) <> "https://"
-        m.errorLabel.text = "The URL must start with http:// or https://"
+        m.messageButton.text = "URL MUST START WITH http:// OR https://"
         return
     end if
+    m.messageButton.text = "CONNECTING..."
     m.top.config = {
         url: url
         token: token
@@ -113,26 +122,3 @@ sub onSave()
     }
     m.top.configSaved = true
 end sub
-
-function onKeyEvent(key as string, press as boolean) as boolean
-    if not press then return false
-    if key = "down"
-        if m.focusIndex < 2 then m.focusIndex = m.focusIndex + 1
-        renderFocus()
-        return true
-    else if key = "up"
-        if m.focusIndex > 0 then m.focusIndex = m.focusIndex - 1
-        renderFocus()
-        return true
-    else if key = "OK"
-        if m.focusIndex = 0
-            openKeyboard("url")
-        else if m.focusIndex = 1
-            openKeyboard("token")
-        else
-            onSave()
-        end if
-        return true
-    end if
-    return false
-end function

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<component name="SetupView" extends="Group">
+<component name="SetupView" extends="Group" initialFocus="urlButton">
   <interface>
     <field id="configSaved" type="boolean" alwaysNotify="true" />
     <field id="config" type="assocarray" />
@@ -8,47 +8,22 @@
   </interface>
   <script type="text/brightscript" uri="pkg:/components/SetupView.brs" />
   <children>
-    <!-- A centered, TV-safe login card.  The fields are rendered ourselves;
-         selecting one opens Roku's native KeyboardDialog. -->
     <Rectangle translation="[290,130]" width="1340" height="820" color="0x100A06E8" />
     <Rectangle translation="[290,130]" width="12" height="820" color="0xD78335FF" />
 
-    <Label text="Connect to Home Assistant" translation="[365,190]" width="1190" height="70">
-      <Font role="font" uri="font:MediumSystemFont" size="52" />
-    </Label>
-    <Label text="Enter your local Home Assistant address and access token." translation="[365,270]" width="1190" color="0xD8CBB8FF">
-      <Font role="font" uri="font:SmallerSystemFont" size="29" />
-    </Label>
+    <!-- This Roku model is not drawing standalone Label nodes reliably.
+         Native Button nodes draw text and own focus/input themselves. -->
+    <Button id="titleButton" text="CONNECT TO HOME ASSISTANT" translation="[365,190]"
+            minWidth="1190" maxWidth="1190" enabled="false" />
 
-    <Label text="HOME ASSISTANT URL" translation="[365,350]" width="1100" color="0xE6AA62FF">
-      <Font role="font" uri="font:SmallerSystemFont" size="25" />
-    </Label>
-    <Rectangle id="urlFocus" translation="[357,393]" width="1206" height="82" color="0xF2A24BFF" visible="true" />
-    <Rectangle translation="[365,401]" width="1190" height="66" color="0xF2E9DBFF" />
-    <Label id="urlValue" text="" translation="[390,415]" width="1140" height="45" color="0x25170FFF" horizAlign="left">
-      <Font role="font" uri="font:SmallerSystemFont" size="29" />
-    </Label>
+    <ButtonGroup id="loginButtons" translation="[365,340]" minWidth="1190"
+                 maxWidth="1190" buttonHeight="92">
+      <Button id="urlButton" text="HOME ASSISTANT URL" minWidth="1190" maxWidth="1190" />
+      <Button id="tokenButton" text="ACCESS TOKEN - NOT ENTERED" minWidth="1190" maxWidth="1190" />
+      <Button id="connectButton" text="CONNECT" minWidth="1190" maxWidth="1190" />
+    </ButtonGroup>
 
-    <Label text="LONG-LIVED ACCESS TOKEN" translation="[365,515]" width="1100" color="0xE6AA62FF">
-      <Font role="font" uri="font:SmallerSystemFont" size="25" />
-    </Label>
-    <Rectangle id="tokenFocus" translation="[357,558]" width="1206" height="82" color="0xF2A24BFF" visible="false" />
-    <Rectangle translation="[365,566]" width="1190" height="66" color="0xF2E9DBFF" />
-    <Label id="tokenValue" text="Select to enter token" translation="[390,580]" width="1140" height="45" color="0x604F43FF" horizAlign="left">
-      <Font role="font" uri="font:SmallerSystemFont" size="29" />
-    </Label>
-
-    <Rectangle id="connectFocus" translation="[357,687]" width="426" height="84" color="0xFFF0D5FF" visible="false" />
-    <Rectangle translation="[365,695]" width="410" height="68" color="0xC66B2DFF" />
-    <Label text="CONNECT" translation="[365,708]" width="410" height="46" horizAlign="center">
-      <Font role="font" uri="font:MediumSystemFont" size="31" />
-    </Label>
-
-    <Label id="errorLabel" text="" translation="[365,792]" width="1190" height="42" color="0xFFB097FF" wrap="true">
-      <Font role="font" uri="font:SmallerSystemFont" size="26" />
-    </Label>
-    <Label text="Use ▲/▼ to move and OK to select. Tip: paste the token with the Roku mobile app." translation="[365,863]" width="1190" color="0xB9AD9CFF">
-      <Font role="font" uri="font:SmallerSystemFont" size="24" />
-    </Label>
+    <Button id="messageButton" text="Select URL or token and press OK to type"
+            translation="[365,745]" minWidth="1190" maxWidth="1190" enabled="false" />
   </children>
 </component>

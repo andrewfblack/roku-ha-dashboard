@@ -100,7 +100,7 @@ sub onConnectionStatus()
     status = m.haTask.connectionStatus
     m.homeView.connectionStatus = status
     if status = "auth_error"
-        showSetup("Login failed. Check your URL and long-lived access token.", m.haTask.lastConfig)
+        showSetup("Pairing failed. Check the 8-character code in Home Assistant.", m.haTask.lastConfig)
     else if status = "network_error"
         showSetup("Could not reach Home Assistant. Check the URL and your network.", m.haTask.lastConfig)
     end if

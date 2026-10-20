@@ -16,6 +16,7 @@ sub executeTask()
     m.url = m.top.url
     if Right(m.url, 1) = "/" then m.url = Left(m.url, Len(m.url) - 1)
     m.token = m.top.token
+    m.pairingMode = Len(m.token) <= 16
     m.top.lastConfig = {
         url: m.top.url
         token: m.top.token
@@ -24,13 +25,25 @@ sub executeTask()
         outsideEntity: m.top.outsideEntity
     }
 
-    conn = ValidateConnection()
+    if m.pairingMode
+        conn = FetchPairingData()
+    else
+        conn = ValidateConnection()
+    end if
     print "HA TASK: validation result = "; conn
     if conn <> "ok"
         m.top.connectionStatus = conn
         return
     end if
     m.top.connectionStatus = "connected"
+
+    if m.pairingMode
+        while true
+            Sleep(30000)
+            status = FetchPairingData()
+            if status <> "ok" then m.top.connectionStatus = status
+        end while
+    end if
 
     m.states = {}
     FullRefresh()
@@ -75,6 +88,57 @@ function HttpGetJson(path as string) as dynamic
     resp = HttpGet(path)
     if resp.code < 200 or resp.code >= 300 then return { error: resp.code }
     return ParseJson(resp.body)
+end function
+
+function HttpGetPublic(path as string) as object
+    xfer = CreateObject("roUrlTransfer")
+    xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    xfer.InitClientCertificates()
+    xfer.RetainBodyOnError(true)
+    xfer.EnableEncodings(true)
+    xfer.SetUrl(m.url + path)
+    port = CreateObject("roMessagePort")
+    xfer.SetMessagePort(port)
+    if not xfer.AsyncGetToString() then return { code: -1, body: "" }
+    msg = Wait(15000, port)
+    if msg = invalid or Type(msg) <> "roUrlEvent" then return { code: -2, body: "" }
+    return { code: msg.GetResponseCode(), body: msg.GetString() }
+end function
+
+function FetchPairingData() as string
+    resp = HttpGetPublic("/api/roku_dashboard/" + UrlEscape(UCase(m.token)))
+    if resp.code = 401 then return "auth_error"
+    if resp.code < 200 or resp.code >= 300 then return "network_error"
+    data = ParseJson(resp.body)
+    if not IsAssociativeArray(data) or data.ok <> true then return "network_error"
+
+    states = data.states
+    if not IsAssociativeArray(states) then states = {}
+    m.states = states
+    m.top.states = states
+    if IsAssociativeArray(data.resolved_entities)
+        m.top.resolvedEntities = data.resolved_entities
+    end if
+    if data.meal_plan <> invalid then m.top.mealPlan = data.meal_plan.ToStr()
+
+    events = []
+    if IsArray(data.calendar_events)
+        for each raw in data.calendar_events
+            start = raw.start.ToStr()
+            allDay = raw.all_day = true
+            timeLabel = "All day"
+            if not allDay then timeLabel = FormatEventTime(start)
+            events.Push({
+                title: raw.title.ToStr()
+                timeLabel: timeLabel
+                allDay: allDay
+                sortKey: start
+            })
+        end for
+    end if
+    m.top.calendarEvents = events
+    m.top.connectionStatus = "connected"
+    return "ok"
 end function
 
 function ValidateConnection() as string

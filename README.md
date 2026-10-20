@@ -10,10 +10,11 @@ A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your T
 
 ## 1. Home Assistant preparation
 
-### Long-lived access token
-1. Open Home Assistant → click your **Profile** (bottom of the sidebar).
-2. **Security** → **Long-Lived Access Tokens** → **Create Token**.
-3. Copy the token — you'll paste it into the channel during setup.
+### Pairing code
+Install and configure the companion Roku Dashboard HACS integration. Open
+`sensor.roku_dashboard_config` in Developer Tools → States and copy its
+`pairing_code` attribute. The Roku needs only this 8-character code; it does
+not store a Home Assistant long-lived access token.
 
 ### Meal plan sensor
 The channel reads the *state* of an entity you choose. Easiest option — a helper you can edit from the HA UI (even from your phone):
@@ -60,7 +61,7 @@ If you leave the inside/outside entity fields blank:
    Application Installer**. The channel launches automatically.
 
 On first launch the **Connect to Home Assistant** screen appears. It has only
-two fields: your HA URL (e.g. `http://192.168.1.50:8123`) and access token.
+two fields: your HA URL (e.g. `http://192.168.1.50:8123`) and pairing code.
 Use Up/Down to select a field and press **OK** to open Roku's native keyboard.
 Choose **SAVE** in the keyboard when finished, then select **CONNECT**. The
 token is masked on the TV after entry. Everything is saved on the device, so

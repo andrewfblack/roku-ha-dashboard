@@ -9,40 +9,15 @@
   <children>
     <Rectangle translation="[290,130]" width="1340" height="820" color="0x100A06E8" />
     <Rectangle translation="[290,130]" width="12" height="820" color="0xD78335FF" />
-
-    <!-- This Roku model is not drawing standalone Label nodes reliably.
-         Native Button nodes draw text and own focus/input themselves. -->
-    <Button id="titleButton" text="CONNECT TO HOME ASSISTANT" translation="[365,190]"
+    <Button text="CONNECT TO HOME ASSISTANT" translation="[365,190]"
             minWidth="1190" maxWidth="1190" />
-
     <ButtonGroup id="loginButtons" translation="[365,340]" minWidth="1190"
                  maxWidth="1190" buttonHeight="92">
       <Button id="urlButton" text="HOME ASSISTANT URL" minWidth="1190" maxWidth="1190" />
-      <Button id="tokenButton" text="ACCESS TOKEN - NOT ENTERED" minWidth="1190" maxWidth="1190" />
+      <Button id="codeButton" text="PAIRING CODE - NOT ENTERED" minWidth="1190" maxWidth="1190" />
       <Button id="connectButton" text="CONNECT" minWidth="1190" maxWidth="1190" />
     </ButtonGroup>
-
-    <Button id="messageButton" text="Select URL or token and press OK to type"
+    <Button id="messageButton" text="Find the code in sensor.roku_dashboard_config"
             translation="[365,745]" minWidth="1190" maxWidth="1190" />
-
-    <!-- Long-token editor. Roku Keyboard/KeyboardDialog hard-cap text at 75
-         characters. A directly focused TextEditBox does not, and receives
-         Lit_* input/paste events from the official Roku mobile remote. -->
-    <Group id="tokenEditor" visible="false">
-      <Rectangle width="1920" height="1080" color="0x100A06FF" />
-      <Button id="tokenInstruction" text="PASTE TOKEN USING THE ROKU MOBILE APP KEYBOARD"
-              translation="[300,180]" minWidth="1320" maxWidth="1320" />
-      <Rectangle translation="[300,340]" width="1320" height="100" color="0xF2E9DBFF" />
-      <TextEditBox id="tokenInput" translation="[330,360]" width="1260" height="65"
-                   textColor="0x25170FFF" hintTextColor="0x604F43FF"
-                   hintText="Paste the complete token here" maxTextLength="1024"
-                   secureMode="true" clearOnDownKey="false" />
-      <Button id="saveTokenButton" text="SAVE TOKEN" translation="[300,530]"
-              minWidth="630" maxWidth="630" />
-      <Button id="cancelTokenButton" text="CANCEL" translation="[990,530]"
-              minWidth="630" maxWidth="630" />
-      <Button id="tokenHelp" text="After pasting, press DOWN and OK to save"
-              translation="[300,700]" minWidth="1320" maxWidth="1320" />
-    </Group>
   </children>
 </component>

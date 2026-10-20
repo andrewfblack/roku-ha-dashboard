@@ -10,6 +10,7 @@ A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your T
 - **Scenes tab** — activate selected Home Assistant scenes and scripts
 - **Climate tab** — adjust target temperature and cycle HVAC modes
 - **Live updates** — via the Home Assistant WebSocket API
+- **Always-on display** — keeps Roku's system screensaver from replacing the dashboard while the channel is open
 - **Tab navigation** — move Right through the Home panels to Weather; Left returns Home
 - **Allowlisted controls** — only entities selected in the companion integration can be controlled
 - **Fall theme** — warm autumn background (`images/fall-bg.jpg`)
@@ -69,16 +70,20 @@ If you leave the inside/outside entity fields blank:
 On first launch the **Connect to Home Assistant** screen appears. It has only
 two fields: your HA URL (e.g. `http://192.168.1.50:8123`) and pairing code.
 Use Up/Down to select a field and press **OK** to open Roku's native keyboard.
-Choose **SAVE** in the keyboard when finished, then select **CONNECT**. The
-token is masked on the TV after entry. Everything is saved on the device, so
-setup only happens once (or after a failed login, when the values are restored).
+Choose **SAVE** in the keyboard when finished, then select **CONNECT**.
+Everything is saved on the device, so setup only happens once (or after a
+failed pairing, when the values are restored).
 
 ## 3. Debugging
 
 - Roku debug console: `telnet <roku-ip> 8085` (close with Ctrl+] then `quit`).
-- If login fails: check the URL works from your phone's browser, and that the
-  token wasn't revoked. HTTPS requires a valid certificate (self-signed certs
-  are not supported without code changes).
+- If pairing fails: check the URL works from your phone's browser and enter the
+  current pairing code from `sensor.roku_dashboard_config`. HTTPS requires a
+  valid certificate (self-signed certs are not supported without code changes).
+
+> **Display safety:** preventing the screensaver can contribute to image
+> retention or burn-in on susceptible displays. Exit the channel when it is
+> not needed, especially on OLED TVs.
 
 ## 4. Customization
 
@@ -93,7 +98,7 @@ setup only happens once (or after a failed login, when the values are restored).
 manifest                          channel metadata (FHD)
 source/main.brs                   screen bootstrap
 components/MainScene.xml/.brs     coordinator: setup vs home, registry, task wiring
-components/SetupView.xml/.brs     first-run HA URL + token entry
+components/SetupView.xml/.brs     first-run HA URL + pairing-code entry
 components/HomeView.xml/.brs      Home tab UI (calendar, meals, climate)
 components/tasks/HATask.xml/.brs  background task: REST + WebSocket to Home Assistant
 images/fall-bg.jpg                fall background
@@ -104,9 +109,8 @@ Build and sideload this channel, then optionally install the companion
 Assistant integration to control calendars, entities, backgrounds and layouts
 from HA.
 
-## Roadmap (v2 ideas)
+## Roadmap
 
 - Layout customization from Home Assistant (fetch a JSON layout/Lovelelace config
   so panels can be rearranged without rebuilding the channel)
-- Controls: lights, switches, climate setpoints
-- More tabs: lights, cameras (HLS streams play natively on Roku)
+- More tabs: cameras and media (HLS streams play natively on Roku)

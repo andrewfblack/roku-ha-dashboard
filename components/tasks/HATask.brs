@@ -12,6 +12,7 @@ sub init()
 end sub
 
 sub executeTask()
+    print "HA TASK: started"
     m.url = m.top.url
     if Right(m.url, 1) = "/" then m.url = Left(m.url, Len(m.url) - 1)
     m.token = m.top.token
@@ -24,6 +25,7 @@ sub executeTask()
     }
 
     conn = ValidateConnection()
+    print "HA TASK: validation result = "; conn
     if conn <> "ok"
         m.top.connectionStatus = conn
         return

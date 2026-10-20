@@ -4,7 +4,9 @@
 sub init()
     m.setupView = m.top.FindNode("setupView")
     m.homeView = m.top.FindNode("homeView")
-    m.setupView.ObserveField("configSaved", "onConfigSaved")
+    ' Observe the submitted config itself. This avoids a separate Boolean
+    ' signal that some Roku OS versions coalesce or fail to deliver.
+    m.setupView.ObserveField("config", "onConfigSubmitted")
     m.haTask = invalid
 
     loadSavedConfig()
@@ -36,8 +38,10 @@ sub showSetup(errorMessage as string, config as dynamic)
     m.setupView.SetFocus(true)
 end sub
 
-sub onConfigSaved()
+sub onConfigSubmitted()
     config = m.setupView.config
+    if config = invalid then return
+    print "MAIN: received setup config for "; config.url
     section = CreateObject("roRegistrySection", "haDashboard")
     section.Write("url", config.url)
     section.Write("token", config.token)
@@ -45,10 +49,12 @@ sub onConfigSaved()
     section.Write("insideEntity", config.insideEntity)
     section.Write("outsideEntity", config.outsideEntity)
     section.Flush()
+    print "MAIN: registry saved; opening dashboard"
     startDashboard(config)
 end sub
 
 sub startDashboard(config as object)
+    print "MAIN: startDashboard"
     m.setupView.visible = false
     m.homeView.visible = true
     m.homeView.url = config.url
@@ -71,6 +77,7 @@ sub startDashboard(config as object)
     m.haTask.insideEntity = config.insideEntity
     m.haTask.outsideEntity = config.outsideEntity
     m.haTask.control = "RUN"
+    print "MAIN: Home Assistant task started"
 end sub
 
 sub onStates()

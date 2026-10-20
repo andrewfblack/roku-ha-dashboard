@@ -113,6 +113,7 @@ sub saveAndConnect()
         return
     end if
     m.messageButton.text = "CONNECTING..."
+    print "SETUP: submitting Home Assistant config for "; url
     m.top.config = {
         url: url
         token: token
@@ -120,5 +121,4 @@ sub saveAndConnect()
         insideEntity: ""
         outsideEntity: ""
     }
-    m.top.configSaved = true
 end sub

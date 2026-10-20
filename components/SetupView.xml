@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <component name="SetupView" extends="Group" initialFocus="urlButton">
   <interface>
-    <field id="configSaved" type="boolean" alwaysNotify="true" />
-    <field id="config" type="assocarray" />
+    <field id="config" type="assocarray" alwaysNotify="true" />
     <field id="prefill" type="assocarray" onChange="onPrefill" />
     <field id="errorMessage" type="string" onChange="onErrorMessage" />
   </interface>
@@ -14,7 +13,7 @@
     <!-- This Roku model is not drawing standalone Label nodes reliably.
          Native Button nodes draw text and own focus/input themselves. -->
     <Button id="titleButton" text="CONNECT TO HOME ASSISTANT" translation="[365,190]"
-            minWidth="1190" maxWidth="1190" enabled="false" />
+            minWidth="1190" maxWidth="1190" />
 
     <ButtonGroup id="loginButtons" translation="[365,340]" minWidth="1190"
                  maxWidth="1190" buttonHeight="92">
@@ -24,6 +23,6 @@
     </ButtonGroup>
 
     <Button id="messageButton" text="Select URL or token and press OK to type"
-            translation="[365,745]" minWidth="1190" maxWidth="1190" enabled="false" />
+            translation="[365,745]" minWidth="1190" maxWidth="1190" />
   </children>
 </component>

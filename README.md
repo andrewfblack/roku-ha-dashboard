@@ -6,6 +6,7 @@ A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your T
   Skylight-inspired rolling family schedule with 3–7 color-coded day columns
 - **Meal plan** — from a configurable HA sensor (default: `sensor.meal_plan`)
 - **Climate** — inside temperature/humidity and outside temperature/condition
+- **Weekly meals** — today's meal on Home; OK opens editable Monday–Sunday planning
 - **Weather tab** — current conditions plus configurable daily or hourly forecast
   with bundled condition artwork
 - **Bundled weather icons** — sun, clouds, rain, storms, snow, fog, wind, hail,
@@ -17,6 +18,7 @@ A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your T
 - **Always-on display** — keeps Roku's system screensaver from replacing the dashboard while the channel is open
 - **Tab navigation** — move Right through the Home panels to Weather; Left returns Home
 - **Allowlisted controls** — only entities selected in the companion integration can be controlled
+- **Idle return** — returns to Home after five minutes without remote input
 - **Fall theme** — warm autumn background (`images/fall-bg.jpg`)
 - **Seasonal and uploaded backgrounds** — Fall, Winter, Spring, and Summer
   bundled artwork, or an image uploaded through the Home Assistant integration

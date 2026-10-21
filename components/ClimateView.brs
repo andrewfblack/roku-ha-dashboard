@@ -4,6 +4,9 @@ sub init()
     m.current = m.top.FindNode("current") : m.target = m.top.FindNode("target")
     m.mode = m.top.FindNode("mode") : m.action = m.top.FindNode("action")
     m.humidity = m.top.FindNode("humidity") : m.status = m.top.FindNode("status")
+    m.modeGroup = m.top.FindNode("modeButtons")
+    m.modeCards = []
+    buildModeCards()
     m.items = [] : m.focusIndex = 0
 end sub
 
@@ -31,7 +34,48 @@ sub renderClimate()
     m.mode.text = "Mode: " + UCase(item.state)
     m.action.text = "Action: " + valueOr(item.hvac_action, "idle")
     if item.humidity <> invalid then m.humidity.text = "Humidity: " + item.humidity.ToStr() + "%" else m.humidity.text = ""
+    renderModeCards(item)
 end sub
+
+sub buildModeCards()
+    for i = 0 to 6
+        focus = m.modeGroup.CreateChild("Rectangle")
+        focus.width = 160 : focus.height = 92 : focus.translation = [i * 178, 0]
+        focus.color = "0xE5A84BFF" : focus.visible = false
+        panel = m.modeGroup.CreateChild("Rectangle")
+        panel.width = 150 : panel.height = 82 : panel.translation = [i * 178 + 5, 5]
+        panel.color = "0x382A1DFF"
+        icon = m.modeGroup.CreateChild("Poster")
+        icon.width = 50 : icon.height = 50 : icon.translation = [i * 178 + 15, 10]
+        icon.loadDisplayMode = "scaleToFit"
+        label = m.modeGroup.CreateChild("Label")
+        label.width = 80 : label.height = 52 : label.translation = [i * 178 + 70, 20]
+        m.modeCards.Push({ focus: focus, panel: panel, icon: icon, label: label })
+    end for
+end sub
+
+sub renderModeCards(item as object)
+    modes = item.hvac_modes
+    if modes = invalid then modes = []
+    for i = 0 to 6
+        card = m.modeCards[i] : visible = i < modes.Count()
+        card.panel.visible = visible : card.icon.visible = visible : card.label.visible = visible
+        card.focus.visible = false
+        if visible
+            modeName = modes[i].ToStr()
+            card.focus.visible = modeName = item.state
+            card.icon.uri = ClimateIconUri(modeName)
+            card.label.text = UCase(modeName.Replace("_", " "))
+        end if
+    end for
+end sub
+
+function ClimateIconUri(modeName as string) as string
+    key = LCase(modeName)
+    supported = { "auto": true, "heat_cool": true, "heat": true, "cool": true, "dry": true, "fan_only": true, "off": true }
+    if not supported.DoesExist(key) then key = "auto"
+    return "pkg:/images/climate/" + key + ".png"
+end function
 
 function tempText(value as dynamic) as string
     if value = invalid then return "--"

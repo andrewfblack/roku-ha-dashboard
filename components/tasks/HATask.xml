@@ -21,6 +21,8 @@
     <field id="command" type="assocarray" alwaysNotify="true" />
     <field id="commandResult" type="assocarray" alwaysNotify="true" />
     <field id="mealPlan" type="string" alwaysNotify="true" />
+    <field id="weeklyMealPlan" type="array" alwaysNotify="true" />
+    <field id="dashboardTitle" type="string" alwaysNotify="true" />
     <field id="connectionStatus" type="string" alwaysNotify="true" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/tasks/HATask.brs" />

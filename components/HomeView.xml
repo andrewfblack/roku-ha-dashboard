@@ -8,9 +8,13 @@
     <field id="calendarEvents" type="array" onChange="onCalendarEvents" />
     <field id="monthCalendar" type="assocarray" onChange="onMonthCalendar" />
     <field id="mealPlan" type="string" onChange="onMealPlan" />
+    <field id="weeklyMealPlan" type="array" onChange="onWeeklyMealPlan" />
+    <field id="dashboardTitle" type="string" onChange="onDashboardTitle" />
     <field id="connectionStatus" type="string" onChange="onConnectionStatus" />
     <field id="tabRequest" type="string" alwaysNotify="true" />
     <field id="keyInput" type="string" alwaysNotify="true" onChange="onKeyInput" />
+    <field id="commandRequest" type="assocarray" alwaysNotify="true" />
+    <field id="commandResult" type="assocarray" onChange="onCommandResult" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/HomeView.brs" />
   <children>
@@ -92,6 +96,13 @@
       <Label id="agendaCount" text="" width="500" height="55" translation="[1250,135]" horizAlign="right" color="0xC0B49CFF" />
       <Group id="agendaRows" translation="[170,220]" />
       <Label text="UP/DOWN: scroll     BACK or LEFT: close" width="1580" height="50" translation="[170,920]" horizAlign="center" color="0xC0B49CFF" />
+    </Group>
+    <Group id="weeklyMeals" visible="false">
+      <Rectangle width="1920" height="1080" color="0x100A06FA" />
+      <Rectangle translation="[300,120]" width="1320" height="840" color="0x241A10FF" />
+      <Label text="WEEKLY MEAL PLAN" width="1180" height="70" translation="[370,165]" color="0xE0A85EFF" />
+      <Group id="mealRows" translation="[370,265]" />
+      <Label text="Press BACK or LEFT to close" width="1180" height="50" translation="[370,875]" horizAlign="center" color="0xC0B49CFF" />
     </Group>
   </children>
 </component>

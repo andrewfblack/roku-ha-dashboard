@@ -20,7 +20,8 @@
     <Label text="TARGET" width="680" height="46" translation="[970,555]" horizAlign="center" color="0xC0B49CFF" />
     <Label id="mode" text="Mode: --" width="650" height="60" translation="[310,690]" horizAlign="center" />
     <Label id="action" text="Action: --" width="650" height="60" translation="[960,690]" horizAlign="center" />
-    <Label id="humidity" text="" width="1400" height="55" translation="[260,800]" horizAlign="center" />
-    <Label text="At first/last thermostat, LEFT/RIGHT changes tabs" width="1400" height="45" translation="[260,890]" horizAlign="center" color="0xC0B49CFF" />
+    <Group id="modeButtons" translation="[330,770]" />
+    <Label id="humidity" text="" width="1400" height="45" translation="[260,875]" horizAlign="center" />
+    <Label text="At first/last thermostat, LEFT/RIGHT changes tabs" width="1400" height="40" translation="[260,920]" horizAlign="center" color="0xC0B49CFF" />
   </children>
 </component>

@@ -23,6 +23,10 @@ sub init()
     m.currentTab = "home"
     m.tabsData = {}
     m.commandSeq = 0
+    m.inactivityTimer = m.top.CreateChild("Timer")
+    m.inactivityTimer.duration = 300
+    m.inactivityTimer.repeat = false
+    m.inactivityTimer.ObserveField("fire", "onInactivityTimeout")
     m.homeView.ObserveField("tabRequest", "onHomeTabRequest")
     m.calendarView.ObserveField("tabRequest", "onCalendarTabRequest")
     m.weatherView.ObserveField("tabRequest", "onWeatherTabRequest")
@@ -32,6 +36,7 @@ sub init()
     m.lightsView.ObserveField("commandRequest", "onLightsCommand")
     m.scenesView.ObserveField("commandRequest", "onScenesCommand")
     m.climateView.ObserveField("commandRequest", "onClimateCommand")
+    m.homeView.ObserveField("commandRequest", "onHomeCommand")
     ' Observe the submitted config itself. This avoids a separate Boolean
     ' signal that some Roku OS versions coalesce or fail to deliver.
     m.setupView.ObserveField("config", "onConfigSubmitted")
@@ -57,6 +62,7 @@ sub loadSavedConfig()
 end sub
 
 sub showSetup(errorMessage as string, config as dynamic)
+    m.inactivityTimer.control = "stop"
     m.homeView.visible = false
     m.calendarView.visible = false
     m.weatherView.visible = false
@@ -98,6 +104,7 @@ sub startDashboard(config as object)
     m.scenesView.visible = false
     m.climateView.visible = false
     m.currentTab = "home"
+    m.inactivityTimer.control = "start"
     m.homeView.url = config.url
     m.homeView.mealEntity = config.mealEntity
     m.top.SetFocus(true)
@@ -120,6 +127,8 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("climatesData", "onClimatesData")
     m.haTask.ObserveField("commandResult", "onCommandResult")
     m.haTask.ObserveField("mealPlan", "onMealPlan")
+    m.haTask.ObserveField("weeklyMealPlan", "onWeeklyMealPlan")
+    m.haTask.ObserveField("dashboardTitle", "onDashboardTitle")
     m.haTask.ObserveField("connectionStatus", "onConnectionStatus")
     m.haTask.url = config.url
     m.haTask.token = config.token
@@ -255,6 +264,8 @@ end sub
 ' avoids older Roku OS versions leaving focus in hidden setup controls.
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    m.inactivityTimer.control = "stop"
+    m.inactivityTimer.control = "start"
     if m.setupView.visible then return false
     if key = "back" and m.currentTab = "home" then return false
     view = m.views[m.currentTab]
@@ -263,6 +274,12 @@ function onKeyEvent(key as string, press as boolean) as boolean
     view.keyInput = key
     return true
 end function
+
+sub onInactivityTimeout()
+    showTab("home")
+    m.homeView.keyInput = "timeout"
+    m.inactivityTimer.control = "start"
+end sub
 
 sub sendCommand(command as object)
     m.commandSeq = m.commandSeq + 1
@@ -273,6 +290,10 @@ end sub
 
 sub onLightsCommand()
     sendCommand(m.lightsView.commandRequest)
+end sub
+
+sub onHomeCommand()
+    sendCommand(m.homeView.commandRequest)
 end sub
 
 sub onScenesCommand()
@@ -288,10 +309,19 @@ sub onCommandResult()
     m.lightsView.commandResult = result
     m.scenesView.commandResult = result
     m.climateView.commandResult = result
+    m.homeView.commandResult = result
 end sub
 
 sub onMealPlan()
     m.homeView.mealPlan = m.haTask.mealPlan
+end sub
+
+sub onWeeklyMealPlan()
+    m.homeView.weeklyMealPlan = m.haTask.weeklyMealPlan
+end sub
+
+sub onDashboardTitle()
+    m.homeView.dashboardTitle = m.haTask.dashboardTitle
 end sub
 
 sub onConnectionStatus()

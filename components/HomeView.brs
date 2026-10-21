@@ -25,6 +25,7 @@ sub init()
     m.outsideDetail = m.top.FindNode("outsideDetail")
     m.statusLabel = m.top.FindNode("statusLabel")
     m.dateLabel = m.top.FindNode("dateLabel")
+    m.titleLabel = m.top.FindNode("titleLabel")
     m.monthTitle = m.top.FindNode("monthTitle")
     m.monthGrid = m.top.FindNode("monthGrid")
     m.monthDayLabels = []
@@ -39,6 +40,13 @@ sub init()
     m.agendaOffset = 0
     m.agendaOpen = false
     buildAgendaRows()
+    m.weeklyMeals = m.top.FindNode("weeklyMeals")
+    m.mealRowsGroup = m.top.FindNode("mealRows")
+    m.mealRows = []
+    m.weeklyMealData = []
+    m.mealsOpen = false
+    m.mealIndex = 0
+    buildMealRows()
 
     m.rings = [
         m.top.FindNode("calendarRing")
@@ -87,6 +95,18 @@ sub onMealPlan()
     else
         m.mealContent.text = meal
     end if
+end sub
+
+sub onWeeklyMealPlan()
+    m.weeklyMealData = m.top.weeklyMealPlan
+    if m.weeklyMealData = invalid then m.weeklyMealData = []
+    if m.mealsOpen then RenderMealRows()
+end sub
+
+sub onDashboardTitle()
+    title = m.top.dashboardTitle
+    if title = invalid or title = "" then title = "Family Dashboard"
+    m.titleLabel.text = UCase(title) + "       CALENDAR  >"
 end sub
 
 sub onConnectionStatus()
@@ -260,6 +280,115 @@ function HandleAgendaKey(key as string) as boolean
     return true
 end function
 
+sub buildMealRows()
+    for i = 0 to 6
+        y = i * 82
+        focus = m.mealRowsGroup.CreateChild("Rectangle")
+        focus.translation = [-5, y - 5]
+        focus.width = 1190
+        focus.height = 80
+        focus.color = "0xE5A84BFF"
+        focus.visible = false
+        panel = m.mealRowsGroup.CreateChild("Rectangle")
+        panel.translation = [0, y]
+        panel.width = 1180
+        panel.height = 70
+        if i MOD 2 = 0 then panel.color = "0x382A1DFF" else panel.color = "0x2B2118FF"
+        dayLabel = m.mealRowsGroup.CreateChild("Label")
+        dayLabel.translation = [25, y + 12]
+        dayLabel.width = 250
+        dayLabel.height = 48
+        mealLabel = m.mealRowsGroup.CreateChild("Label")
+        mealLabel.translation = [300, y + 12]
+        mealLabel.width = 840
+        mealLabel.height = 48
+        m.mealRows.Push({ focus: focus, panel: panel, day: dayLabel, meal: mealLabel })
+    end for
+end sub
+
+sub OpenMeals()
+    m.mealsOpen = true
+    m.mealIndex = 0
+    m.weeklyMeals.visible = true
+    RenderMealRows()
+end sub
+
+sub CloseMeals()
+    m.mealsOpen = false
+    m.weeklyMeals.visible = false
+end sub
+
+sub RenderMealRows()
+    for i = 0 to 6
+        row = m.mealRows[i]
+        row.focus.visible = m.mealsOpen and i = m.mealIndex
+        if i < m.weeklyMealData.Count()
+            item = m.weeklyMealData[i]
+            row.day.text = item.day
+            if item.is_today = true then row.day.text = "> " + UCase(item.day)
+            meal = item.meal
+            if meal = invalid or meal = "" then meal = "No meal planned"
+            row.meal.text = meal
+        else
+            row.day.text = ""
+            row.meal.text = ""
+        end if
+    end for
+end sub
+
+function HandleMealKey(key as string) as boolean
+    if key = "back" or key = "left"
+        CloseMeals()
+    else if key = "up" and m.mealIndex > 0
+        m.mealIndex = m.mealIndex - 1
+        RenderMealRows()
+    else if key = "down" and m.mealIndex < 6
+        m.mealIndex = m.mealIndex + 1
+        RenderMealRows()
+    else if key = "OK"
+        OpenMealKeyboard()
+    end if
+    return true
+end function
+
+sub OpenMealKeyboard()
+    if m.mealIndex >= m.weeklyMealData.Count() then return
+    item = m.weeklyMealData[m.mealIndex]
+    dialog = CreateObject("roSGNode", "KeyboardDialog")
+    dialog.title = "Meal for " + item.day
+    if item.meal <> invalid then dialog.text = item.meal
+    dialog.buttons = ["SAVE", "CANCEL"]
+    dialog.ObserveField("buttonSelected", "onMealKeyboardButton")
+    m.mealDialog = dialog
+    m.top.GetScene().dialog = dialog
+    dialog.SetFocus(true)
+end sub
+
+sub onMealKeyboardButton()
+    dialog = m.mealDialog
+    if dialog = invalid then return
+    if dialog.buttonSelected = 0
+        values = []
+        for i = 0 to 6
+            value = ""
+            if i < m.weeklyMealData.Count() and m.weeklyMealData[i].meal <> invalid
+                value = m.weeklyMealData[i].meal.ToStr()
+            end if
+            if i = m.mealIndex then value = dialog.text.Trim()
+            values.Push(value)
+        end for
+        m.top.commandRequest = { action: "meal_week", value: values }
+    end if
+    dialog.close = true
+    m.mealDialog = invalid
+    m.top.GetScene().SetFocus(true)
+end sub
+
+sub onCommandResult()
+    result = m.top.commandResult
+    if result <> invalid and result.ok then m.mealContent.text = "Meal plan updated"
+end sub
+
 sub UpdateClimate()
     ' --- Inside ---
     insideId = FieldOrBlank(m.resolvedEntities, "inside")
@@ -272,10 +401,13 @@ sub UpdateClimate()
             value = st.state.ToStr()
         end if
         m.insideValue.text = CleanTemperature(value)
-        name = FriendlyName(insideId, st)
-        if name <> "" then m.insideName.text = name
+        m.insideName.text = "Inside"
         detail = ""
-        if st.attributes <> invalid and st.attributes.humidity <> invalid
+        humidityId = FieldOrBlank(m.resolvedEntities, "inside_humidity")
+        humidityState = StateFor(humidityId)
+        if humidityState <> invalid and humidityState.state <> invalid
+            detail = humidityState.state.ToStr() + "% humidity"
+        else if st.attributes <> invalid and st.attributes.humidity <> invalid
             detail = st.attributes.humidity.ToStr() + "% humidity"
         end if
         m.insideDetail.text = detail
@@ -412,7 +544,14 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    if key = "timeout"
+        if m.agendaOpen then CloseAgenda()
+        if m.mealsOpen then CloseMeals()
+        SetFocusIndex(0)
+        return true
+    end if
     if m.agendaOpen then return HandleAgendaKey(key)
+    if m.mealsOpen then return HandleMealKey(key)
     if key = "right"
         if m.focusIndex = m.rings.Count() - 1
             m.top.tabRequest = "next"
@@ -429,6 +568,9 @@ function onKeyEvent(key as string, press as boolean) as boolean
         return true
     else if key = "OK" and m.focusIndex = 0
         OpenAgenda()
+        return true
+    else if key = "OK" and m.focusIndex = 1
+        OpenMeals()
         return true
     end if
     return false

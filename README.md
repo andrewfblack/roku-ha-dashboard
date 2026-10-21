@@ -7,6 +7,9 @@ A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your T
 - **Meal plan** — from a configurable HA sensor (default: `sensor.meal_plan`)
 - **Climate** — inside temperature/humidity and outside temperature/condition
 - **Weather tab** — current conditions plus configurable daily or hourly forecast
+  with bundled condition artwork
+- **Bundled weather icons** — sun, clouds, rain, storms, snow, fog, wind, hail,
+  and clear-night artwork; no external image service required
 - **Lights tab** — toggle selected lights and cycle brightness presets
 - **Scenes tab** — activate selected Home Assistant scenes and scripts
 - **Climate tab** — adjust target temperature and cycle HVAC modes
@@ -103,6 +106,7 @@ components/SetupView.xml/.brs     first-run HA URL + pairing-code entry
 components/HomeView.xml/.brs      Home tab UI (calendar, meals, climate)
 components/tasks/HATask.xml/.brs  background task: REST + WebSocket to Home Assistant
 images/fall-bg.jpg                fall background
+images/weather/*.png              bundled weather condition artwork
 ```
 
 Build and sideload this channel, then optionally install the companion

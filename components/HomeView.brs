@@ -20,6 +20,7 @@ sub init()
     m.insideName = m.top.FindNode("insideName")
     m.insideDetail = m.top.FindNode("insideDetail")
     m.outsideValue = m.top.FindNode("outsideValue")
+    m.outsideIcon = m.top.FindNode("outsideIcon")
     m.outsideName = m.top.FindNode("outsideName")
     m.outsideDetail = m.top.FindNode("outsideDetail")
     m.statusLabel = m.top.FindNode("statusLabel")
@@ -293,6 +294,7 @@ sub UpdateClimate()
             temp = st.attributes.temperature.ToStr()
         end if
         m.outsideValue.text = CleanTemperature(temp)
+        m.outsideIcon.uri = WeatherIconUri(st.state.ToStr())
         m.outsideName.text = TitleCase(st.state.ToStr())
         detail = ""
         if st.attributes <> invalid and st.attributes.humidity <> invalid
@@ -301,6 +303,7 @@ sub UpdateClimate()
         m.outsideDetail.text = detail
     else
         m.outsideValue.text = "--"
+        m.outsideIcon.uri = "pkg:/images/weather/unknown.png"
         m.outsideName.text = "Outside"
         m.outsideDetail.text = "No weather entity found"
     end if
@@ -365,6 +368,29 @@ function TitleCase(s as string) as string
         end if
     end for
     return result
+end function
+
+function WeatherIconUri(condition as string) as string
+    key = LCase(condition)
+    supported = {
+        "sunny": true
+        "clear-night": true
+        "cloudy": true
+        "partlycloudy": true
+        "rainy": true
+        "pouring": true
+        "lightning": true
+        "lightning-rainy": true
+        "snowy": true
+        "snowy-rainy": true
+        "fog": true
+        "windy": true
+        "windy-variant": true
+        "hail": true
+        "exceptional": true
+    }
+    if not supported.DoesExist(key) then key = "unknown"
+    return "pkg:/images/weather/" + key + ".png"
 end function
 
 function TodayLabel() as string

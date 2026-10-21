@@ -2,6 +2,7 @@ sub init()
     m.top.focusable = true
     m.status = m.top.FindNode("status")
     m.name = m.top.FindNode("weatherName")
+    m.currentIcon = m.top.FindNode("currentIcon")
     m.temp = m.top.FindNode("currentTemp")
     m.condition = m.top.FindNode("currentCondition")
     m.humidity = m.top.FindNode("currentHumidity")
@@ -27,9 +28,15 @@ sub buildForecastRows()
         period.height = 60
         period.translation = [20, i * 82 + 8]
         condition = group.CreateChild("Label")
-        condition.width = 330
+        condition.width = 270
         condition.height = 60
-        condition.translation = [210, i * 82 + 8]
+        condition.translation = [260, i * 82 + 8]
+        icon = group.CreateChild("Poster")
+        icon.width = 58
+        icon.height = 58
+        icon.translation = [190, i * 82 + 7]
+        icon.loadDisplayMode = "scaleToFit"
+        icon.uri = "pkg:/images/weather/unknown.png"
         temperature = group.CreateChild("Label")
         temperature.width = 230
         temperature.height = 60
@@ -39,7 +46,7 @@ sub buildForecastRows()
         rain.height = 60
         rain.horizAlign = "right"
         rain.translation = [790, i * 82 + 8]
-        m.rows.Push({ period: period, condition: condition, temperature: temperature, rain: rain, bg: bg })
+        m.rows.Push({ period: period, icon: icon, condition: condition, temperature: temperature, rain: rain, bg: bg })
     end for
 end sub
 
@@ -57,6 +64,7 @@ sub onWeatherData()
 
     m.status.text = "LIVE FROM HOME ASSISTANT"
     m.name.text = valueOr(data.name, "WEATHER")
+    m.currentIcon.uri = weatherIconUri(valueOr(data.condition, "unknown"))
     m.temp.text = temperatureText(data.temperature, valueOr(data.temperature_unit, ""))
     m.condition.text = humanCondition(valueOr(data.condition, "Unknown"))
     m.humidity.text = detailLine("Humidity", data.humidity, "%")
@@ -73,12 +81,14 @@ sub onWeatherData()
         row.bg.visible = visible
         row.period.visible = visible
         row.condition.visible = visible
+        row.icon.visible = visible
         row.temperature.visible = visible
         row.rain.visible = visible
         if visible
             item = forecast[i]
             row.period.text = forecastTime(valueOr(item.datetime, ""), data.forecast_type)
             row.condition.text = humanCondition(valueOr(item.condition, "Unknown"))
+            row.icon.uri = weatherIconUri(valueOr(item.condition, "unknown"))
             high = temperatureText(item.temperature, "")
             low = ""
             if item.templow <> invalid then low = " / " + temperatureText(item.templow, "")
@@ -124,6 +134,29 @@ function humanCondition(value as string) as string
     if text = "clear night" then return "Clear Night"
     if text = "" then return "Unknown"
     return UCase(Left(text, 1)) + LCase(Mid(text, 2))
+end function
+
+function weatherIconUri(condition as string) as string
+    key = LCase(condition)
+    supported = {
+        "sunny": true
+        "clear-night": true
+        "cloudy": true
+        "partlycloudy": true
+        "rainy": true
+        "pouring": true
+        "lightning": true
+        "lightning-rainy": true
+        "snowy": true
+        "snowy-rainy": true
+        "fog": true
+        "windy": true
+        "windy-variant": true
+        "hail": true
+        "exceptional": true
+    }
+    if not supported.DoesExist(key) then key = "unknown"
+    return "pkg:/images/weather/" + key + ".png"
 end function
 
 function onKeyEvent(key as string, press as boolean) as boolean

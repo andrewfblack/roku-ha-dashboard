@@ -76,7 +76,8 @@
     <Label id="insideDetail" text="" horizAlign="left" width="340" height="40" color="0xC0B49CFF" translation="[1050,844]">
     </Label>
 
-    <Label id="outsideValue" text="--" horizAlign="left" width="340" height="110" translation="[1460,676]">
+    <Poster id="outsideIcon" width="105" height="105" translation="[1450,675]" loadDisplayMode="scaleToFit" uri="pkg:/images/weather/unknown.png" />
+    <Label id="outsideValue" text="--" horizAlign="left" width="235" height="110" translation="[1580,676]">
     </Label>
     <Label id="outsideName" text="Outside" horizAlign="left" width="340" height="44" color="0xC0B49CFF" translation="[1460,800]">
     </Label>

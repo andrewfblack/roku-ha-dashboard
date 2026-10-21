@@ -10,6 +10,10 @@ Tabs are represented by icons with a visible selected state. Home includes
 detail affordances for all of today's events and editable weekly meals, while
 daily forecasts use centered condition artwork beneath each weekday.
 
+The Home Assistant integration's Theme and colors section controls the Roku
+Home card background/opacity, headings, body and secondary text, selected
+focus border, title, and background-image darkening.
+
 - **Calendar** — today's events and month overview on Home, plus a dedicated
   Skylight-inspired rolling family schedule with 3–7 color-coded day columns
 - **Meal plan** — from a configurable HA sensor (default: `sensor.meal_plan`)

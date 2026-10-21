@@ -168,6 +168,7 @@ function FetchPairingData() as string
     if data.meal_plan <> invalid then m.top.mealPlan = data.meal_plan.ToStr()
     if IsArray(data.weekly_meal_plan) then m.top.weeklyMealPlan = data.weekly_meal_plan
     if data.title <> invalid then m.top.dashboardTitle = data.title.ToStr()
+    if IsAssociativeArray(data.theme) then m.top.themeData = data.theme
 
     events = []
     if IsArray(data.calendar_events)

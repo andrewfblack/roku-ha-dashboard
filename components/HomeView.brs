@@ -15,6 +15,12 @@ sub init()
         m.rowTitles.Push(m.top.FindNode("row" + i.ToStr() + "Title"))
     end for
     m.calendarEmpty = m.top.FindNode("calendarEmpty")
+    m.calendarPanel = m.top.FindNode("calendarPanel")
+    m.mealPanel = m.top.FindNode("mealPanel")
+    m.climatePanel = m.top.FindNode("climatePanel")
+    m.calendarHeader = m.top.FindNode("calendarHeader")
+    m.mealHeader = m.top.FindNode("mealHeader")
+    m.climateHeader = m.top.FindNode("climateHeader")
     m.mealContent = m.top.FindNode("mealContent")
     m.insideValue = m.top.FindNode("insideValue")
     m.insideName = m.top.FindNode("insideName")
@@ -116,6 +122,53 @@ sub onDashboardTitle()
     if title = invalid or title = "" then title = "Family Dashboard"
     m.titleLabel.text = UCase(title)
 end sub
+
+sub onThemeData()
+    theme = m.top.themeData
+    if theme = invalid then return
+    opacity = 90
+    if theme.item_opacity <> invalid then opacity = theme.item_opacity
+    panelColor = ThemeColor(theme.item_background, opacity)
+    bodyColor = ThemeColor(theme.body_text, 100)
+    mutedColor = ThemeColor(theme.muted_text, 100)
+    headerColor = ThemeColor(theme.header_text, 100)
+    itemHeaderColor = ThemeColor(theme.item_header_text, 100)
+    selectedBorder = ThemeColor(theme.selected_border, 100)
+    m.calendarPanel.color = panelColor
+    m.mealPanel.color = panelColor
+    m.climatePanel.color = panelColor
+    for each ring in m.rings
+        ring.color = selectedBorder
+    end for
+    m.titleLabel.color = headerColor
+    m.dateLabel.color = mutedColor
+    m.statusLabel.color = mutedColor
+    m.calendarHeader.color = itemHeaderColor
+    m.mealHeader.color = itemHeaderColor
+    m.climateHeader.color = itemHeaderColor
+    m.mealContent.color = bodyColor
+    m.insideValue.color = bodyColor
+    m.outsideValue.color = bodyColor
+    m.insideName.color = itemHeaderColor
+    m.outsideName.color = itemHeaderColor
+    m.insideDetail.color = mutedColor
+    m.outsideCondition.color = mutedColor
+    m.outsideDetail.color = mutedColor
+    for i = 0 to m.rowTimes.Count() - 1
+        m.rowTimes[i].color = mutedColor
+        m.rowTitles[i].color = bodyColor
+    end for
+end sub
+
+function ThemeColor(value as dynamic, opacity as integer) as string
+    color = "FFF7EA"
+    if value <> invalid
+        color = UCase(value.ToStr().Replace("#", ""))
+        if Len(color) <> 6 then color = "FFF7EA"
+    end if
+    alpha = Int(opacity * 255 / 100)
+    return "0x" + color + Right("0" + Hex(alpha), 2)
+end function
 
 sub onConnectionStatus()
     status = m.top.connectionStatus

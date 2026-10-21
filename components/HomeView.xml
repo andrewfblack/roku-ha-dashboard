@@ -11,6 +11,7 @@
     <field id="mealPlan" type="string" onChange="onMealPlan" />
     <field id="weeklyMealPlan" type="array" onChange="onWeeklyMealPlan" />
     <field id="dashboardTitle" type="string" onChange="onDashboardTitle" />
+    <field id="themeData" type="assocarray" onChange="onThemeData" />
     <field id="connectionStatus" type="string" onChange="onConnectionStatus" />
     <field id="tabRequest" type="string" alwaysNotify="true" />
     <field id="keyInput" type="string" alwaysNotify="true" onChange="onKeyInput" />

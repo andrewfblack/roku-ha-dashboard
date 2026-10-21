@@ -4,6 +4,7 @@
 sub init()
     m.top.focusable = true
     m.bg = m.top.FindNode("background")
+    m.scrim = m.top.FindNode("scrim")
     m.setupView = m.top.FindNode("setupView")
     m.homeView = m.top.FindNode("homeView")
     m.calendarView = m.top.FindNode("calendarView")
@@ -130,6 +131,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("mealPlan", "onMealPlan")
     m.haTask.ObserveField("weeklyMealPlan", "onWeeklyMealPlan")
     m.haTask.ObserveField("dashboardTitle", "onDashboardTitle")
+    m.haTask.ObserveField("themeData", "onThemeData")
     m.haTask.ObserveField("connectionStatus", "onConnectionStatus")
     m.haTask.url = config.url
     m.haTask.token = config.token
@@ -327,6 +329,16 @@ end sub
 
 sub onDashboardTitle()
     m.homeView.dashboardTitle = m.haTask.dashboardTitle
+end sub
+
+sub onThemeData()
+    theme = m.haTask.themeData
+    m.homeView.themeData = theme
+    if theme <> invalid and theme.background_overlay <> invalid
+        alpha = Int(theme.background_overlay * 255 / 100)
+        alphaHex = Right("0" + Hex(alpha), 2)
+        m.scrim.color = "0x000000" + alphaHex
+    end if
 end sub
 
 sub onConnectionStatus()

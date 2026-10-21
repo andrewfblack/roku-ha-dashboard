@@ -22,6 +22,7 @@ sub init()
     m.outsideValue = m.top.FindNode("outsideValue")
     m.outsideIcon = m.top.FindNode("outsideIcon")
     m.outsideName = m.top.FindNode("outsideName")
+    m.outsideCondition = m.top.FindNode("outsideCondition")
     m.outsideDetail = m.top.FindNode("outsideDetail")
     m.statusLabel = m.top.FindNode("statusLabel")
     m.dateLabel = m.top.FindNode("dateLabel")
@@ -36,6 +37,8 @@ sub init()
     m.agendaRowsGroup = m.top.FindNode("agendaRows")
     m.agendaRows = []
     m.monthEvents = []
+    m.todayEvents = []
+    m.agendaEvents = []
     m.agendaIndex = 0
     m.agendaOffset = 0
     m.agendaOpen = false
@@ -79,6 +82,11 @@ sub onCalendarEvents()
     RenderCalendar()
 end sub
 
+sub onTodayEvents()
+    m.todayEvents = m.top.todayEvents
+    if m.todayEvents = invalid then m.todayEvents = []
+end sub
+
 sub onMonthCalendar()
     value = m.top.monthCalendar
     if value <> invalid
@@ -106,7 +114,7 @@ end sub
 sub onDashboardTitle()
     title = m.top.dashboardTitle
     if title = invalid or title = "" then title = "Family Dashboard"
-    m.titleLabel.text = UCase(title) + "       CALENDAR  >"
+    m.titleLabel.text = UCase(title)
 end sub
 
 sub onConnectionStatus()
@@ -222,6 +230,7 @@ sub buildAgendaRows()
 end sub
 
 sub OpenAgenda()
+    m.agendaEvents = m.todayEvents
     m.agendaOpen = true
     m.agendaIndex = 0
     m.agendaOffset = 0
@@ -235,20 +244,18 @@ sub CloseAgenda()
 end sub
 
 sub RenderAgenda()
-    m.agendaCount.text = m.monthEvents.Count().ToStr() + " events"
-    if m.top.monthCalendar <> invalid and m.top.monthCalendar.title <> invalid
-        m.agendaTitle.text = UCase(m.top.monthCalendar.title.ToStr()) + " AGENDA"
-    end if
+    m.agendaCount.text = m.agendaEvents.Count().ToStr() + " events"
+    m.agendaTitle.text = "TODAY'S EVENTS"
     for rowIndex = 0 to 7
         eventIndex = m.agendaOffset + rowIndex
         row = m.agendaRows[rowIndex]
-        visible = eventIndex < m.monthEvents.Count()
+        visible = eventIndex < m.agendaEvents.Count()
         row.focus.visible = visible and eventIndex = m.agendaIndex
         row.panel.visible = visible
         row.date.visible = visible
         row.title.visible = visible
         if visible
-            event = m.monthEvents[eventIndex]
+            event = m.agendaEvents[eventIndex]
             row.date.text = AgendaDate(event.start, event.all_day)
             row.title.text = event.title
         end if
@@ -265,7 +272,7 @@ function AgendaDate(startValue as dynamic, allDayValue as dynamic) as string
 end function
 
 function HandleAgendaKey(key as string) as boolean
-    count = m.monthEvents.Count()
+    count = m.agendaEvents.Count()
     if key = "back" or key = "left"
         CloseAgenda()
     else if key = "up" and m.agendaIndex > 0
@@ -427,7 +434,8 @@ sub UpdateClimate()
         end if
         m.outsideValue.text = CleanTemperature(temp)
         m.outsideIcon.uri = WeatherIconUri(st.state.ToStr())
-        m.outsideName.text = TitleCase(st.state.ToStr())
+        m.outsideName.text = "Outside"
+        m.outsideCondition.text = TitleCase(st.state.ToStr())
         detail = ""
         if st.attributes <> invalid and st.attributes.humidity <> invalid
             detail = st.attributes.humidity.ToStr() + "% humidity"
@@ -437,6 +445,7 @@ sub UpdateClimate()
         m.outsideValue.text = "--"
         m.outsideIcon.uri = "pkg:/images/weather/unknown.png"
         m.outsideName.text = "Outside"
+        m.outsideCondition.text = "Unknown"
         m.outsideDetail.text = "No weather entity found"
     end if
 end sub

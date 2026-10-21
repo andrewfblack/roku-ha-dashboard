@@ -6,6 +6,7 @@
     <field id="states" type="assocarray" onChange="onStates" />
     <field id="resolvedEntities" type="assocarray" onChange="onResolvedEntities" />
     <field id="calendarEvents" type="array" onChange="onCalendarEvents" />
+    <field id="todayEvents" type="array" onChange="onTodayEvents" />
     <field id="monthCalendar" type="assocarray" onChange="onMonthCalendar" />
     <field id="mealPlan" type="string" onChange="onMealPlan" />
     <field id="weeklyMealPlan" type="array" onChange="onWeeklyMealPlan" />
@@ -18,9 +19,9 @@
   </interface>
   <script type="text/brightscript" uri="pkg:/components/HomeView.brs" />
   <children>
-    <Label id="titleLabel" text="HOME       CALENDAR  &gt;" horizAlign="left" width="900" height="72" translation="[80,48]">
-    </Label>
-    <Label id="dateLabel" text="" horizAlign="right" width="800" height="46" translation="[1040,62]">
+    <TabIcons selected="home" translation="[80,35]" />
+    <Label id="titleLabel" text="FAMILY DASHBOARD" width="500" height="72" translation="[680,48]" />
+    <Label id="dateLabel" text="" horizAlign="right" width="600" height="46" translation="[1240,62]">
     </Label>
     <Label id="statusLabel" text="" horizAlign="left" width="700" height="42" color="0xE0C89EFF" translation="[260,62]">
     </Label>
@@ -30,6 +31,7 @@
     <Rectangle id="calendarPanel" translation="[80,170]" width="900" height="830" color="0x241A10D9" />
     <Label id="calendarHeader" text="TODAY'S CALENDAR" horizAlign="left" width="820" height="44" color="0xE0A85EFF" translation="[110,196]">
     </Label>
+    <Poster width="34" height="34" translation="[910,198]" loadDisplayMode="scaleToFit" uri="pkg:/images/mdi/more.png" />
     <Label id="row0Time" text="" horizAlign="left" width="210" height="64" translation="[110,260]">
     </Label>
     <Label id="row0Title" text="" horizAlign="left" width="620" height="70" wrap="true" maxLines="2" translation="[330,254]">
@@ -63,6 +65,7 @@
     <Rectangle id="mealPanel" translation="[1020,170]" width="820" height="380" color="0x241A10D9" />
     <Label id="mealHeader" text="MEAL PLAN" horizAlign="left" width="730" height="44" color="0xE0A85EFF" translation="[1050,196]">
     </Label>
+    <Poster width="34" height="34" translation="[1770,198]" loadDisplayMode="scaleToFit" uri="pkg:/images/mdi/settings.png" />
     <Label id="mealContent" text="" horizAlign="left" width="740" height="250" wrap="true" maxLines="6" translation="[1050,256]">
     </Label>
 
@@ -73,19 +76,20 @@
     </Label>
     <Rectangle id="climateDivider" translation="[1420,680]" width="2" height="290" color="0x605040FF" />
 
-    <Label id="insideValue" text="--" horizAlign="left" width="340" height="110" translation="[1050,676]">
+    <Label id="insideName" text="Inside" horizAlign="left" width="340" height="44" color="0xE0A85EFF" translation="[1050,676]">
     </Label>
-    <Label id="insideName" text="Inside" horizAlign="left" width="340" height="44" color="0xC0B49CFF" translation="[1050,800]">
+    <Label id="insideValue" text="--" horizAlign="center" width="340" height="110" translation="[1050,735]">
     </Label>
-    <Label id="insideDetail" text="" horizAlign="left" width="340" height="40" color="0xC0B49CFF" translation="[1050,844]">
+    <Label id="insideDetail" text="" horizAlign="center" width="340" height="40" color="0xC0B49CFF" translation="[1050,850]">
     </Label>
 
-    <Poster id="outsideIcon" width="105" height="105" translation="[1450,675]" loadDisplayMode="scaleToFit" uri="pkg:/images/weather/unknown.png" />
-    <Label id="outsideValue" text="--" horizAlign="left" width="235" height="110" translation="[1580,676]">
+    <Label id="outsideName" text="Outside" horizAlign="left" width="340" height="44" color="0xE0A85EFF" translation="[1460,676]">
     </Label>
-    <Label id="outsideName" text="Outside" horizAlign="left" width="340" height="44" color="0xC0B49CFF" translation="[1460,800]">
+    <Poster id="outsideIcon" width="112" height="112" translation="[1574,715]" loadDisplayMode="scaleToFit" uri="pkg:/images/weather/unknown.png" />
+    <Label id="outsideValue" text="--" horizAlign="center" width="340" height="90" translation="[1460,820]">
     </Label>
-    <Label id="outsideDetail" text="" horizAlign="left" width="340" height="40" color="0xC0B49CFF" translation="[1460,844]">
+    <Label id="outsideCondition" text="Unknown" horizAlign="center" width="340" height="38" color="0xC0B49CFF" translation="[1460,910]" />
+    <Label id="outsideDetail" text="" horizAlign="center" width="340" height="34" color="0xC0B49CFF" translation="[1460,950]">
     </Label>
 
     <!-- Full-month agenda overlay opened by OK on the calendar panel. -->

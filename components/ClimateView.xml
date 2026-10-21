@@ -9,7 +9,8 @@
   </interface>
   <script type="text/brightscript" uri="pkg:/components/ClimateView.brs" />
   <children>
-    <Label text="&lt; SCENES       CLIMATE       HOME &gt;" width="1200" height="72" translation="[80,48]" />
+    <TabIcons selected="climate" translation="[80,35]" />
+    <Label text="CLIMATE" width="400" height="72" translation="[680,48]" />
     <Label id="status" text="UP/DOWN: temperature    OK: mode" width="650" height="52" translation="[1190,62]" horizAlign="right" />
     <Rectangle translation="[180,175]" width="1560" height="790" color="0x241A10E8" />
     <Label id="name" text="No climate entity selected" width="1400" height="70" translation="[260,225]" horizAlign="center" color="0xE0A85EFF" />

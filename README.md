@@ -2,6 +2,14 @@
 
 A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your TV:
 
+The interface bundles only the Material Design Icons it uses for tabs,
+weather, climate modes, settings, and details. Their Apache 2.0 license is
+included at `images/mdi/LICENSE`.
+
+Tabs are represented by icons with a visible selected state. Home includes
+detail affordances for all of today's events and editable weekly meals, while
+daily forecasts use centered condition artwork beneath each weekday.
+
 - **Calendar** — today's events and month overview on Home, plus a dedicated
   Skylight-inspired rolling family schedule with 3–7 color-coded day columns
 - **Meal plan** — from a configurable HA sensor (default: `sensor.meal_plan`)

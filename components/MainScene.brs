@@ -117,6 +117,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("states", "onStates")
     m.haTask.ObserveField("resolvedEntities", "onResolvedEntities")
     m.haTask.ObserveField("calendarEvents", "onCalendarEvents")
+    m.haTask.ObserveField("todayEvents", "onTodayEvents")
     m.haTask.ObserveField("monthCalendar", "onMonthCalendar")
     m.haTask.ObserveField("calendarSchedule", "onCalendarSchedule")
     m.haTask.ObserveField("weatherData", "onWeatherData")
@@ -149,6 +150,10 @@ end sub
 
 sub onCalendarEvents()
     m.homeView.calendarEvents = m.haTask.calendarEvents
+end sub
+
+sub onTodayEvents()
+    m.homeView.todayEvents = m.haTask.todayEvents
 end sub
 
 sub onMonthCalendar()

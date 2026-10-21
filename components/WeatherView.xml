@@ -7,8 +7,9 @@
   </interface>
   <script type="text/brightscript" uri="pkg:/components/WeatherView.brs" />
   <children>
-    <Label text="&lt; CALENDAR       WEATHER       LIGHTS &gt;" width="1100" height="72" translation="[80,48]" />
-    <Label id="status" text="Loading weather from Home Assistant..." width="950" height="50" translation="[870,62]" horizAlign="right" />
+    <TabIcons selected="weather" translation="[80,35]" />
+    <Label text="WEATHER" width="450" height="72" translation="[680,48]" />
+    <Label id="status" text="Loading weather from Home Assistant..." width="560" height="50" translation="[1280,62]" horizAlign="right" />
 
     <Rectangle translation="[80,170]" width="620" height="830" color="0x241A10D9" />
     <Label id="weatherName" text="WEATHER" width="550" height="50" color="0xE0A85EFF" translation="[115,205]" />

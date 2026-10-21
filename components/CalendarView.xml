@@ -7,7 +7,8 @@
   </interface>
   <script type="text/brightscript" uri="pkg:/components/CalendarView.brs" />
   <children>
-    <Label text="&lt; HOME       FAMILY CALENDAR       WEATHER &gt;" width="1250" height="72" translation="[80,42]" />
+    <TabIcons selected="calendar" translation="[80,35]" />
+    <Label text="FAMILY CALENDAR" width="500" height="72" translation="[680,48]" />
     <Label id="status" text="Rolling family schedule" width="560" height="48" translation="[1280,55]" horizAlign="right" color="0xC0B49CFF" />
     <Group id="columns" translation="[80,130]" />
     <Label id="empty" text="No calendar data available" width="1760" height="80" translation="[80,260]" horizAlign="center" visible="false" />

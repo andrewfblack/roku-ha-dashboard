@@ -9,7 +9,8 @@
   </interface>
   <script type="text/brightscript" uri="pkg:/components/LightsView.brs" />
   <children>
-    <Label text="&lt; WEATHER       LIGHTS       SCENES &gt;" width="1150" height="72" translation="[80,48]" />
+    <TabIcons selected="lights" translation="[80,35]" />
+    <Label text="LIGHTS" width="400" height="72" translation="[680,48]" />
     <Label id="status" text="OK: toggle    PLAY/PAUSE: brightness" width="650" height="52" translation="[1190,62]" horizAlign="right" />
     <Group id="grid" translation="[80,160]" />
     <Label id="empty" text="No lights selected. Configure Roku Dashboard in Home Assistant." width="1760" height="80" translation="[80,260]" visible="false" />

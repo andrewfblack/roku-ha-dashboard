@@ -17,35 +17,42 @@ end sub
 sub buildForecastRows()
     group = m.top.FindNode("forecastRows")
     for i = 0 to 7
+        col = i MOD 4
+        cardRow = Int(i / 4)
+        x = col * 255
+        y = cardRow * 320
         bg = group.CreateChild("Rectangle")
-        bg.width = 1020
-        bg.height = 72
-        bg.translation = [0, i * 82]
+        bg.width = 235
+        bg.height = 295
+        bg.translation = [x, y]
         if i MOD 2 = 0 then bg.color = "0x382A1CDD" else bg.color = "0x2A2017DD"
 
         period = group.CreateChild("Label")
-        period.width = 180
-        period.height = 60
-        period.translation = [20, i * 82 + 8]
+        period.width = 215
+        period.height = 46
+        period.horizAlign = "center"
+        period.translation = [x + 10, y + 14]
         condition = group.CreateChild("Label")
-        condition.width = 270
-        condition.height = 60
-        condition.translation = [260, i * 82 + 8]
+        condition.width = 215
+        condition.height = 40
+        condition.horizAlign = "center"
+        condition.translation = [x + 10, y + 178]
         icon = group.CreateChild("Poster")
-        icon.width = 58
-        icon.height = 58
-        icon.translation = [190, i * 82 + 7]
+        icon.width = 105
+        icon.height = 105
+        icon.translation = [x + 65, y + 60]
         icon.loadDisplayMode = "scaleToFit"
         icon.uri = "pkg:/images/weather/unknown.png"
         temperature = group.CreateChild("Label")
-        temperature.width = 230
-        temperature.height = 60
-        temperature.translation = [550, i * 82 + 8]
+        temperature.width = 215
+        temperature.height = 44
+        temperature.horizAlign = "center"
+        temperature.translation = [x + 10, y + 216]
         rain = group.CreateChild("Label")
-        rain.width = 210
-        rain.height = 60
-        rain.horizAlign = "right"
-        rain.translation = [790, i * 82 + 8]
+        rain.width = 215
+        rain.height = 36
+        rain.horizAlign = "center"
+        rain.translation = [x + 10, y + 258]
         m.rows.Push({ period: period, icon: icon, condition: condition, temperature: temperature, rain: rain, bg: bg })
     end for
 end sub
@@ -86,7 +93,11 @@ sub onWeatherData()
         row.rain.visible = visible
         if visible
             item = forecast[i]
-            row.period.text = forecastTime(valueOr(item.datetime, ""), data.forecast_type)
+            if item.label <> invalid and item.label <> ""
+                row.period.text = item.label.ToStr()
+            else
+                row.period.text = forecastTime(valueOr(item.datetime, ""), data.forecast_type)
+            end if
             row.condition.text = humanCondition(valueOr(item.condition, "Unknown"))
             row.icon.uri = weatherIconUri(valueOr(item.condition, "unknown"))
             high = temperatureText(item.temperature, "")

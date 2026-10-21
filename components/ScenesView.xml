@@ -9,7 +9,8 @@
   </interface>
   <script type="text/brightscript" uri="pkg:/components/ScenesView.brs" />
   <children>
-    <Label text="&lt; LIGHTS       SCENES       CLIMATE &gt;" width="1200" height="72" translation="[80,48]" />
+    <TabIcons selected="scenes" translation="[80,35]" />
+    <Label text="SCENES" width="400" height="72" translation="[680,48]" />
     <Label id="status" text="Press OK to activate" width="600" height="52" translation="[1240,62]" horizAlign="right" />
     <Group id="grid" translation="[80,160]" />
     <Label id="empty" text="No scenes or scripts selected in Home Assistant." width="1760" height="80" translation="[80,260]" visible="false" />

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="CalendarView" extends="Group">
+  <interface>
+    <field id="schedule" type="assocarray" onChange="onSchedule" />
+    <field id="tabRequest" type="string" alwaysNotify="true" />
+    <field id="keyInput" type="string" alwaysNotify="true" onChange="onKeyInput" />
+  </interface>
+  <script type="text/brightscript" uri="pkg:/components/CalendarView.brs" />
+  <children>
+    <Label text="&lt; HOME       FAMILY CALENDAR       WEATHER &gt;" width="1250" height="72" translation="[80,42]" />
+    <Label id="status" text="Rolling family schedule" width="560" height="48" translation="[1280,55]" horizAlign="right" color="0xC0B49CFF" />
+    <Group id="columns" translation="[80,130]" />
+    <Label id="empty" text="No calendar data available" width="1760" height="80" translation="[80,260]" horizAlign="center" visible="false" />
+    <Group id="detail" visible="false">
+      <Rectangle width="1920" height="1080" color="0x100A06F4" />
+      <Rectangle translation="[280,240]" width="1360" height="570" color="0x241A10FF" />
+      <Rectangle id="detailColor" translation="[280,240]" width="18" height="570" color="0xE5A84BFF" />
+      <Label id="detailTitle" text="" width="1200" height="150" translation="[350,310]" wrap="true" maxLines="3" />
+      <Label id="detailTime" text="" width="1200" height="70" translation="[350,500]" color="0xE0A85EFF" />
+      <Label id="detailCalendar" text="" width="1200" height="70" translation="[350,600]" color="0xC0B49CFF" />
+      <Label text="Press BACK or LEFT to close" width="1200" height="55" translation="[350,710]" horizAlign="center" />
+    </Group>
+  </children>
+</component>

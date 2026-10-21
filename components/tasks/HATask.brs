@@ -186,6 +186,9 @@ function FetchPairingData() as string
     if IsAssociativeArray(data.month_calendar)
         m.top.monthCalendar = data.month_calendar
     end if
+    if IsAssociativeArray(data.calendar_schedule)
+        m.top.calendarSchedule = data.calendar_schedule
+    end if
     if IsAssociativeArray(data.weather)
         m.top.weatherData = data.weather
     end if

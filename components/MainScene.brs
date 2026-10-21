@@ -6,22 +6,25 @@ sub init()
     m.bg = m.top.FindNode("background")
     m.setupView = m.top.FindNode("setupView")
     m.homeView = m.top.FindNode("homeView")
+    m.calendarView = m.top.FindNode("calendarView")
     m.weatherView = m.top.FindNode("weatherView")
     m.lightsView = m.top.FindNode("lightsView")
     m.scenesView = m.top.FindNode("scenesView")
     m.climateView = m.top.FindNode("climateView")
     m.views = {
         home: m.homeView
+        calendar: m.calendarView
         weather: m.weatherView
         lights: m.lightsView
         scenes: m.scenesView
         climate: m.climateView
     }
-    m.tabOrder = ["home", "weather", "lights", "scenes", "climate"]
+    m.tabOrder = ["home", "calendar", "weather", "lights", "scenes", "climate"]
     m.currentTab = "home"
     m.tabsData = {}
     m.commandSeq = 0
     m.homeView.ObserveField("tabRequest", "onHomeTabRequest")
+    m.calendarView.ObserveField("tabRequest", "onCalendarTabRequest")
     m.weatherView.ObserveField("tabRequest", "onWeatherTabRequest")
     m.lightsView.ObserveField("tabRequest", "onLightsTabRequest")
     m.scenesView.ObserveField("tabRequest", "onScenesTabRequest")
@@ -55,6 +58,7 @@ end sub
 
 sub showSetup(errorMessage as string, config as dynamic)
     m.homeView.visible = false
+    m.calendarView.visible = false
     m.weatherView.visible = false
     m.lightsView.visible = false
     m.scenesView.visible = false
@@ -88,6 +92,7 @@ sub startDashboard(config as object)
     m.setupView.inputActive = false
     m.setupView.visible = false
     m.homeView.visible = true
+    m.calendarView.visible = false
     m.weatherView.visible = false
     m.lightsView.visible = false
     m.scenesView.visible = false
@@ -106,6 +111,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("resolvedEntities", "onResolvedEntities")
     m.haTask.ObserveField("calendarEvents", "onCalendarEvents")
     m.haTask.ObserveField("monthCalendar", "onMonthCalendar")
+    m.haTask.ObserveField("calendarSchedule", "onCalendarSchedule")
     m.haTask.ObserveField("weatherData", "onWeatherData")
     m.haTask.ObserveField("backgroundData", "onBackgroundData")
     m.haTask.ObserveField("tabsData", "onTabsData")
@@ -138,6 +144,10 @@ end sub
 
 sub onMonthCalendar()
     m.homeView.monthCalendar = m.haTask.monthCalendar
+end sub
+
+sub onCalendarSchedule()
+    m.calendarView.schedule = m.haTask.calendarSchedule
 end sub
 
 sub onWeatherData()
@@ -176,6 +186,10 @@ end sub
 
 sub onHomeTabRequest()
     navigateTab(m.homeView.tabRequest)
+end sub
+
+sub onCalendarTabRequest()
+    navigateTab(m.calendarView.tabRequest)
 end sub
 
 sub onWeatherTabRequest()

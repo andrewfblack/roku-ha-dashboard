@@ -18,6 +18,8 @@ A sideloaded Roku channel that shows a Home Assistant "Home" dashboard on your T
 - **Tab navigation** — move Right through the Home panels to Weather; Left returns Home
 - **Allowlisted controls** — only entities selected in the companion integration can be controlled
 - **Fall theme** — warm autumn background (`images/fall-bg.jpg`)
+- **Seasonal and uploaded backgrounds** — Fall, Winter, Spring, and Summer
+  bundled artwork, or an image uploaded through the Home Assistant integration
 
 ## 1. Home Assistant preparation
 
@@ -106,6 +108,9 @@ components/SetupView.xml/.brs     first-run HA URL + pairing-code entry
 components/HomeView.xml/.brs      Home tab UI (calendar, meals, climate)
 components/tasks/HATask.xml/.brs  background task: REST + WebSocket to Home Assistant
 images/fall-bg.jpg                fall background
+images/winter-bg.jpg              winter background
+images/spring-bg.jpg              spring background
+images/summer-bg.jpg              summer background
 images/weather/*.png              bundled weather condition artwork
 ```
 

@@ -189,6 +189,19 @@ function FetchPairingData() as string
     if IsAssociativeArray(data.weather)
         m.top.weatherData = data.weather
     end if
+    if data.background <> invalid
+        bgMode = data.background.ToStr()
+        bgUrl = ""
+        if bgMode = "uploaded" and data.has_uploaded_background = true
+            version = ""
+            if data.background_version <> invalid then version = data.background_version.ToStr()
+            bgUrl = m.url + "/api/roku_dashboard/" + UrlEscape(UCase(m.token)) + "/background?v=" + version
+        else if bgMode = "custom_url" and data.background_url <> invalid and data.background_url <> ""
+            bgUrl = data.background_url.ToStr()
+            if Left(bgUrl, 1) = "/" then bgUrl = m.url + bgUrl
+        end if
+        m.top.backgroundData = { mode: bgMode, url: bgUrl }
+    end if
     if IsAssociativeArray(data.tabs) then m.top.tabsData = data.tabs
     if IsArray(data.lights) then m.top.lightsData = data.lights
     if IsArray(data.scenes) then m.top.scenesData = data.scenes

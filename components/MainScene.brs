@@ -3,6 +3,7 @@
 ' HomeView, and relays Home Assistant data from HATask into the UI.
 sub init()
     m.top.focusable = true
+    m.bg = m.top.FindNode("background")
     m.setupView = m.top.FindNode("setupView")
     m.homeView = m.top.FindNode("homeView")
     m.weatherView = m.top.FindNode("weatherView")
@@ -106,6 +107,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("calendarEvents", "onCalendarEvents")
     m.haTask.ObserveField("monthCalendar", "onMonthCalendar")
     m.haTask.ObserveField("weatherData", "onWeatherData")
+    m.haTask.ObserveField("backgroundData", "onBackgroundData")
     m.haTask.ObserveField("tabsData", "onTabsData")
     m.haTask.ObserveField("lightsData", "onLightsData")
     m.haTask.ObserveField("scenesData", "onScenesData")
@@ -140,6 +142,20 @@ end sub
 
 sub onWeatherData()
     m.weatherView.weatherData = m.haTask.weatherData
+end sub
+
+sub onBackgroundData()
+    data = m.haTask.backgroundData
+    if data = invalid then return
+    uri = ""
+    if data.url <> invalid then uri = data.url.ToStr()
+    if uri = ""
+        mode = "fall"
+        if data.mode <> invalid then mode = data.mode.ToStr()
+        if mode <> "winter" and mode <> "spring" and mode <> "summer" then mode = "fall"
+        uri = "pkg:/images/" + mode + "-bg.jpg"
+    end if
+    m.bg.uri = uri
 end sub
 
 sub onTabsData()

@@ -24,24 +24,36 @@ sub init()
     m.currentTab = "home"
     m.tabsData = {}
     m.commandSeq = 0
+    m.focusSeq = 0
     m.inactivityTimer = m.top.CreateChild("Timer")
     m.inactivityTimer.duration = 300
     m.inactivityTimer.repeat = false
     m.inactivityTimer.ObserveField("fire", "onInactivityTimeout")
+    m.focusRetryTimer = m.top.CreateChild("Timer")
+    m.focusRetryTimer.duration = 0.2
+    m.focusRetryTimer.repeat = false
+    m.focusRetryTimer.ObserveField("fire", "onFocusRetry")
     m.homeView.ObserveField("tabRequest", "onHomeTabRequest")
     m.calendarView.ObserveField("tabRequest", "onCalendarTabRequest")
     m.weatherView.ObserveField("tabRequest", "onWeatherTabRequest")
     m.lightsView.ObserveField("tabRequest", "onLightsTabRequest")
     m.scenesView.ObserveField("tabRequest", "onScenesTabRequest")
     m.climateView.ObserveField("tabRequest", "onClimateTabRequest")
+    for each view in m.views
+        m.views[view].ObserveField("activity", "onRemoteActivity")
+    end for
     m.lightsView.ObserveField("commandRequest", "onLightsCommand")
     m.scenesView.ObserveField("commandRequest", "onScenesCommand")
     m.climateView.ObserveField("commandRequest", "onClimateCommand")
     m.homeView.ObserveField("commandRequest", "onHomeCommand")
+    m.homeView.ObserveField("restoreFocus", "onDialogFocusRestore")
+    m.setupView.ObserveField("restoreFocus", "onDialogFocusRestore")
+    m.setupView.ObserveField("discoveryRequest", "onDiscoveryRequested")
     ' Observe the submitted config itself. This avoids a separate Boolean
     ' signal that some Roku OS versions coalesce or fail to deliver.
     m.setupView.ObserveField("config", "onConfigSubmitted")
     m.haTask = invalid
+    m.discoveryTask = invalid
 
     loadSavedConfig()
 end sub
@@ -59,24 +71,72 @@ sub loadSavedConfig()
         startDashboard(config)
     else
         showSetup("", invalid)
+        startDiscovery()
     end if
+end sub
+
+sub onDashboardReady()
+    if not m.top.dashboardReady then return
+    focusActiveView()
+    scheduleFocusRetry()
+end sub
+
+sub focusActiveView()
+    if m.setupView.visible
+        if m.setupView.inputActive
+            m.focusSeq = m.focusSeq + 1
+            m.setupView.focusRequest = m.focusSeq
+        else
+            m.top.SetFocus(true)
+        end if
+        return
+    end if
+    ' MainScene owns dashboard focus and forwards every key to the visible
+    ' view. Keeping one focus owner avoids focus becoming trapped in a hidden
+    ' tab or in a child node after setup and native dialogs close.
+    m.top.SetFocus(true)
+end sub
+
+sub scheduleFocusRetry()
+    m.focusRetryCount = 5
+    m.focusRetryTimer.control = "stop"
+    m.focusRetryTimer.control = "start"
+end sub
+
+sub onFocusRetry()
+    if m.top.dialog = invalid
+        focusActiveView()
+    else
+        ' A close request is asynchronous. Wait until the native dialog has
+        ' actually left the Scene before restoring dashboard focus.
+        m.focusRetryCount = m.focusRetryCount - 1
+        if m.focusRetryCount > 0
+            m.focusRetryTimer.control = "stop"
+            m.focusRetryTimer.control = "start"
+        end if
+    end if
+end sub
+
+sub onDialogFocusRestore()
+    scheduleFocusRetry()
 end sub
 
 sub showSetup(errorMessage as string, config as dynamic)
     m.inactivityTimer.control = "stop"
+    m.setupView.visible = true
+    m.setupView.inputActive = true
+    focusActiveView()
     m.homeView.visible = false
     m.calendarView.visible = false
     m.weatherView.visible = false
     m.lightsView.visible = false
     m.scenesView.visible = false
     m.climateView.visible = false
-    m.setupView.visible = true
-    m.setupView.inputActive = true
     if config <> invalid
         m.setupView.prefill = config
     end if
     m.setupView.errorMessage = errorMessage
-    m.setupView.SetFocus(true)
+    scheduleFocusRetry()
 end sub
 
 sub onConfigSubmitted()
@@ -90,25 +150,32 @@ sub onConfigSubmitted()
     section.Write("insideEntity", config.insideEntity)
     section.Write("outsideEntity", config.outsideEntity)
     section.Flush()
-    print "MAIN: registry saved; opening dashboard"
+    print "MAIN: registry saved; connecting"
     startDashboard(config)
 end sub
 
 sub startDashboard(config as object)
     print "MAIN: startDashboard"
+    isPairing = true
+    if config.token <> invalid then isPairing = config.token = ""
+    m.homeView.visible = not isPairing
     m.setupView.inputActive = false
-    m.setupView.visible = false
-    m.homeView.visible = true
+    m.setupView.visible = isPairing
     m.calendarView.visible = false
     m.weatherView.visible = false
     m.lightsView.visible = false
     m.scenesView.visible = false
     m.climateView.visible = false
-    m.currentTab = "home"
-    m.inactivityTimer.control = "start"
+    if isPairing
+        m.inactivityTimer.control = "stop"
+    else
+        m.currentTab = "home"
+        m.top.SetFocus(true)
+        m.inactivityTimer.control = "start"
+    end if
     m.homeView.url = config.url
     m.homeView.mealEntity = config.mealEntity
-    m.top.SetFocus(true)
+    scheduleFocusRetry()
 
     if m.haTask <> invalid
         m.haTask.control = "STOP"
@@ -132,6 +199,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("weeklyMealPlan", "onWeeklyMealPlan")
     m.haTask.ObserveField("dashboardTitle", "onDashboardTitle")
     m.haTask.ObserveField("themeData", "onThemeData")
+    m.haTask.ObserveField("pairingCode", "onPairingCode")
     m.haTask.ObserveField("connectionStatus", "onConnectionStatus")
     m.haTask.url = config.url
     m.haTask.token = config.token
@@ -140,6 +208,44 @@ sub startDashboard(config as object)
     m.haTask.outsideEntity = config.outsideEntity
     m.haTask.control = "RUN"
     print "MAIN: Home Assistant task started"
+end sub
+
+sub showConnectedDashboard()
+    m.setupView.inputActive = false
+    m.setupView.visible = false
+    m.homeView.visible = true
+    m.currentTab = "home"
+    m.top.SetFocus(true)
+    m.inactivityTimer.control = "start"
+    scheduleFocusRetry()
+end sub
+
+sub onPairingCode()
+    m.setupView.pairingCode = m.haTask.pairingCode
+end sub
+
+sub onDiscoveryRequested()
+    startDiscovery()
+end sub
+
+sub startDiscovery()
+    if m.discoveryTask <> invalid
+        m.discoveryTask.control = "STOP"
+        m.top.RemoveChild(m.discoveryTask)
+    end if
+    m.setupView.discoveryStatus = "searching"
+    m.discoveryTask = m.top.CreateChild("DiscoveryTask")
+    m.discoveryTask.ObserveField("status", "onDiscoveryStatus")
+    m.discoveryTask.ObserveField("foundUrl", "onDiscoveryFound")
+    m.discoveryTask.control = "RUN"
+end sub
+
+sub onDiscoveryStatus()
+    m.setupView.discoveryStatus = m.discoveryTask.status
+end sub
+
+sub onDiscoveryFound()
+    if m.discoveryTask.foundUrl <> "" then m.setupView.foundUrl = m.discoveryTask.foundUrl
 end sub
 
 sub onStates()
@@ -258,23 +364,36 @@ function tabEnabled(name as string) as boolean
 end function
 
 sub showTab(name as string)
-    for each key in m.views
-        m.views[key].visible = false
-    end for
     view = m.views[name]
-    view.visible = true
-    m.top.SetFocus(true)
+    if view = invalid then return
     m.currentTab = name
+    for each key in m.views
+        m.views[key].visible = (key = name)
+    end for
+    m.top.SetFocus(true)
+    scheduleFocusRetry()
+end sub
+
+sub onRemoteActivity()
+    m.inactivityTimer.control = "stop"
+    m.inactivityTimer.control = "start"
 end sub
 
 ' MainScene owns focus on the dashboard and forwards keys explicitly. This
-' avoids older Roku OS versions leaving focus in hidden setup controls.
+' avoids Roku OS leaving focus in hidden setup controls or inactive tabs.
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
     m.inactivityTimer.control = "stop"
     m.inactivityTimer.control = "start"
     if m.setupView.visible then return false
     if key = "back" and m.currentTab = "home" then return false
+    if key = "rewind"
+        navigateTab("previous")
+        return true
+    else if key = "fastforward"
+        navigateTab("next")
+        return true
+    end if
     view = m.views[m.currentTab]
     if view = invalid then return false
     print "KEY: "; key; " -> "; m.currentTab
@@ -335,18 +454,39 @@ sub onThemeData()
     theme = m.haTask.themeData
     m.homeView.themeData = theme
     if theme <> invalid and theme.background_overlay <> invalid
-        alpha = Int(theme.background_overlay * 255 / 100)
-        alphaHex = Right("0" + Hex(alpha), 2)
-        m.scrim.color = "0x000000" + alphaHex
+        overlay = theme.background_overlay
+        if overlay < 45 then overlay = 45
+        alpha = Int(overlay * 255 / 100)
+        if alpha < 0 then alpha = 0
+        if alpha > 255 then alpha = 255
+        m.scrim.color = "0x000000" + ByteToHex(alpha)
     end if
 end sub
+
+function ByteToHex(value as integer) as string
+    digits = "0123456789ABCDEF"
+    return Mid(digits, Int(value / 16) + 1, 1) + Mid(digits, (value MOD 16) + 1, 1)
+end function
 
 sub onConnectionStatus()
     status = m.haTask.connectionStatus
     m.homeView.connectionStatus = status
+    m.setupView.pairingStatus = status
+    if status = "connected"
+        if m.setupView.visible then showConnectedDashboard()
+        return
+    end if
     if status = "auth_error"
-        showSetup("Pairing failed. Check the 8-character code in Home Assistant.", m.haTask.lastConfig)
+        showSetup("This Roku's credential was revoked. Start pairing again.", m.haTask.lastConfig)
     else if status = "network_error"
         showSetup("Could not reach Home Assistant. Check the URL and your network.", m.haTask.lastConfig)
+    else if status = "network_denied"
+        showSetup("Home Assistant blocked pairing from this network. Check Family Dashboard network access.", m.haTask.lastConfig)
+    else if status = "pairing_unavailable"
+        showSetup("Update the Family Dashboard integration in Home Assistant, then try again.", m.haTask.lastConfig)
+    else if status = "pairing_denied"
+        showSetup("Pairing was denied. Select START PAIRING to try again.", m.haTask.lastConfig)
+    else if status = "pairing_expired"
+        showSetup("The pairing code expired. Select START PAIRING to get a new code.", m.haTask.lastConfig)
     end if
 end sub

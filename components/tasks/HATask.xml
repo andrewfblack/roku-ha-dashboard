@@ -25,6 +25,7 @@
     <field id="weeklyMealPlan" type="array" alwaysNotify="true" />
     <field id="dashboardTitle" type="string" alwaysNotify="true" />
     <field id="themeData" type="assocarray" alwaysNotify="true" />
+    <field id="pairingCode" type="string" alwaysNotify="true" />
     <field id="connectionStatus" type="string" alwaysNotify="true" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/tasks/HATask.brs" />

@@ -6,11 +6,13 @@
     <field id="commandRequest" type="assocarray" alwaysNotify="true" />
     <field id="commandResult" type="assocarray" onChange="onCommandResult" />
     <field id="keyInput" type="string" alwaysNotify="true" onChange="onKeyInput" />
+    <field id="activity" type="string" alwaysNotify="true" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/ScenesView.brs" />
   <children>
-    <TabIcons selected="scenes" translation="[80,35]" />
-    <Label text="SCENES" width="400" height="72" translation="[680,48]" />
+    <Rectangle translation="[50,20]" width="1820" height="112" color="0x241A10F2" />
+    <TabIcons selected="scenes" translation="[70,30]" />
+    <Label text="SCENES" width="400" height="72" translation="[720,43]" font="font:LargeSystemFont" />
     <Label id="status" text="Press OK to activate" width="600" height="52" translation="[1240,62]" horizAlign="right" />
     <Group id="grid" translation="[80,160]" />
     <Label id="empty" text="No scenes or scripts selected in Home Assistant." width="1760" height="80" translation="[80,260]" visible="false" />

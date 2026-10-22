@@ -32,24 +32,28 @@ sub renderClimate()
         m.target.text = tempText(item.target_temp_low) + " - " + tempText(item.target_temp_high)
     end if
     m.mode.text = "Mode: " + UCase(item.state)
-    m.action.text = "Action: " + valueOr(item.hvac_action, "idle")
+    m.action.text = "Status: " + valueOr(item.hvac_action, "idle")
     if item.humidity <> invalid then m.humidity.text = "Humidity: " + item.humidity.ToStr() + "%" else m.humidity.text = ""
     renderModeCards(item)
 end sub
 
 sub buildModeCards()
     for i = 0 to 6
+        col = i MOD 4 : row = Int(i / 4)
+        x = col * 300 : y = row * 112
         focus = m.modeGroup.CreateChild("Rectangle")
-        focus.width = 160 : focus.height = 92 : focus.translation = [i * 178, 0]
+        focus.width = 280 : focus.height = 102 : focus.translation = [x, y]
         focus.color = "0xE5A84BFF" : focus.visible = false
         panel = m.modeGroup.CreateChild("Rectangle")
-        panel.width = 150 : panel.height = 82 : panel.translation = [i * 178 + 5, 5]
-        panel.color = "0x382A1DFF"
+        panel.width = 270 : panel.height = 92 : panel.translation = [x + 5, y + 5]
+        panel.color = "0x382A1DF2"
         icon = m.modeGroup.CreateChild("Poster")
-        icon.width = 50 : icon.height = 50 : icon.translation = [i * 178 + 15, 10]
+        icon.width = 72 : icon.height = 72 : icon.translation = [x + 99, y + 15]
         icon.loadDisplayMode = "scaleToFit"
         label = m.modeGroup.CreateChild("Label")
-        label.width = 80 : label.height = 52 : label.translation = [i * 178 + 70, 20]
+        label.width = 1 : label.height = 1 : label.translation = [x, y]
+        label.vertAlign = "center"
+        label.visible = false
         m.modeCards.Push({ focus: focus, panel: panel, icon: icon, label: label })
     end for
 end sub
@@ -59,11 +63,13 @@ sub renderModeCards(item as object)
     if modes = invalid then modes = []
     for i = 0 to 6
         card = m.modeCards[i] : visible = i < modes.Count()
-        card.panel.visible = visible : card.icon.visible = visible : card.label.visible = visible
+        card.panel.visible = visible : card.icon.visible = visible : card.label.visible = false
         card.focus.visible = false
         if visible
             modeName = modes[i].ToStr()
-            card.focus.visible = modeName = item.state
+            active = modeName = item.state
+            card.focus.visible = active
+            if active then card.panel.color = "0x6B4A2FFF" else card.panel.color = "0x382A1DF2"
             card.icon.uri = ClimateIconUri(modeName)
             card.label.text = UCase(modeName.Replace("_", " "))
         end if
@@ -97,6 +103,7 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    m.top.activity = key
     count = m.items.Count()
     if key = "left"
         if m.focusIndex > 0 then m.focusIndex = m.focusIndex - 1 : renderClimate() else m.top.tabRequest = "previous"
@@ -109,8 +116,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
         target = item.temperature
         if target = invalid then target = item.current_temperature
         if target = invalid then return true
-        stepValue = item.target_temp_step
-        if stepValue = invalid then stepValue = 1
+        stepValue = 1
         if key = "up" then target = target + stepValue else target = target - stepValue
         if item.min_temp <> invalid and target < item.min_temp then target = item.min_temp
         if item.max_temp <> invalid and target > item.max_temp then target = item.max_temp

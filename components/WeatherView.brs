@@ -17,42 +17,43 @@ end sub
 sub buildForecastRows()
     group = m.top.FindNode("forecastRows")
     for i = 0 to 7
-        col = i MOD 4
-        cardRow = Int(i / 4)
-        x = col * 255
-        y = cardRow * 320
+        col = i MOD 5
+        cardRow = Int(i / 5)
+        x = col * 218
+        y = cardRow * 330
         bg = group.CreateChild("Rectangle")
-        bg.width = 235
-        bg.height = 295
+        bg.width = 202
+        bg.height = 310
         bg.translation = [x, y]
-        if i MOD 2 = 0 then bg.color = "0x382A1CDD" else bg.color = "0x2A2017DD"
+        if i MOD 2 = 0 then bg.color = "0x382A1CF2" else bg.color = "0x2A2017F2"
 
         period = group.CreateChild("Label")
-        period.width = 215
-        period.height = 46
+        period.width = 182
+        period.height = 48
         period.horizAlign = "center"
         period.translation = [x + 10, y + 14]
         condition = group.CreateChild("Label")
-        condition.width = 215
-        condition.height = 40
+        condition.width = 182
+        condition.height = 44
         condition.horizAlign = "center"
-        condition.translation = [x + 10, y + 178]
+        condition.translation = [x + 10, y + 184]
         icon = group.CreateChild("Poster")
-        icon.width = 105
-        icon.height = 105
-        icon.translation = [x + 65, y + 60]
+        icon.width = 112
+        icon.height = 112
+        icon.translation = [x + 45, y + 62]
         icon.loadDisplayMode = "scaleToFit"
-        icon.uri = "pkg:/images/weather/unknown.png"
+        icon.uri = "pkg:/images/weather/forecast/unknown.png"
         temperature = group.CreateChild("Label")
-        temperature.width = 215
-        temperature.height = 44
-        temperature.horizAlign = "center"
-        temperature.translation = [x + 10, y + 216]
+        temperature.width = 182
+        temperature.height = 48
+        temperature.horizAlign = "left"
+        temperature.font = "font:MediumSystemFont"
+        temperature.translation = [x + 10, y + 228]
         rain = group.CreateChild("Label")
-        rain.width = 215
+        rain.width = 182
         rain.height = 36
         rain.horizAlign = "center"
-        rain.translation = [x + 10, y + 258]
+        rain.translation = [x + 10, y + 270]
         m.rows.Push({ period: period, icon: icon, condition: condition, temperature: temperature, rain: rain, bg: bg })
     end for
 end sub
@@ -71,7 +72,7 @@ sub onWeatherData()
 
     m.status.text = "LIVE FROM HOME ASSISTANT"
     m.name.text = valueOr(data.name, "WEATHER")
-    m.currentIcon.uri = weatherIconUri(valueOr(data.condition, "unknown"))
+    m.currentIcon.uri = currentWeatherIconUri(valueOr(data.condition, "unknown"))
     m.temp.text = temperatureText(data.temperature, valueOr(data.temperature_unit, ""))
     m.condition.text = humanCondition(valueOr(data.condition, "Unknown"))
     m.humidity.text = detailLine("Humidity", data.humidity, "%")
@@ -99,7 +100,7 @@ sub onWeatherData()
                 row.period.text = forecastTime(valueOr(item.datetime, ""), data.forecast_type)
             end if
             row.condition.text = humanCondition(valueOr(item.condition, "Unknown"))
-            row.icon.uri = weatherIconUri(valueOr(item.condition, "unknown"))
+            row.icon.uri = forecastWeatherIconUri(valueOr(item.condition, "unknown"))
             high = temperatureText(item.temperature, "")
             low = ""
             if item.templow <> invalid then low = " / " + temperatureText(item.templow, "")
@@ -122,6 +123,9 @@ function temperatureText(value as dynamic, unit as string) as string
     if value = invalid then return "--"
     text = value.ToStr()
     if Right(text, 2) = ".0" then text = Left(text, Len(text) - 2)
+    if Len(unit) > 0 and Left(unit, 1) = Chr(176)
+        return text + unit
+    end if
     return text + Chr(176) + unit
 end function
 
@@ -147,7 +151,7 @@ function humanCondition(value as string) as string
     return UCase(Left(text, 1)) + LCase(Mid(text, 2))
 end function
 
-function weatherIconUri(condition as string) as string
+function weatherIconKey(condition as string) as string
     key = LCase(condition)
     supported = {
         "sunny": true
@@ -167,11 +171,20 @@ function weatherIconUri(condition as string) as string
         "exceptional": true
     }
     if not supported.DoesExist(key) then key = "unknown"
-    return "pkg:/images/weather/" + key + ".png"
+    return key
+end function
+
+function currentWeatherIconUri(condition as string) as string
+    return "pkg:/images/weather/current/" + weatherIconKey(condition) + ".png"
+end function
+
+function forecastWeatherIconUri(condition as string) as string
+    return "pkg:/images/weather/forecast/" + weatherIconKey(condition) + ".png"
 end function
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    m.top.activity = key
     if key = "left" or key = "back"
         m.top.tabRequest = "previous"
         return true

@@ -1,9 +1,7 @@
 ' HATask: background Task that talks to Home Assistant.
-' - Validates the connection (REST /api/)
-' - Loads all entity states (REST /api/states)
-' - Resolves inside/outside temperature entities (explicit or auto-detected)
-' - Fetches today's calendar events and the meal-plan sensor
-' - Opens a WebSocket (/api/websocket) for live state_changed updates
+' - Starts device-initiated pairing and stores the approved device credential
+' - Reads the allowlisted Family Dashboard API and sends dashboard actions
+' - Keeps compatibility with legacy pairing codes and full HA tokens
 '
 ' Publishes results through interface fields observed by MainScene.
 
@@ -16,7 +14,7 @@ sub executeTask()
     m.url = m.top.url
     if Right(m.url, 1) = "/" then m.url = Left(m.url, Len(m.url) - 1)
     m.token = m.top.token
-    m.pairingMode = Len(m.token) <= 64
+    m.dashboardMode = false
     m.top.lastConfig = {
         url: m.top.url
         token: m.top.token
@@ -25,9 +23,18 @@ sub executeTask()
         outsideEntity: m.top.outsideEntity
     }
 
-    if m.pairingMode
-        conn = FetchPairingData()
+    if m.token = ""
+        m.dashboardMode = true
+        conn = RequestAndWaitForPairing()
+    else if Len(m.token) <= 16
+        ' Upgrade channels paired with the old typed short-code flow.
+        m.dashboardMode = true
+        conn = FetchLegacyData()
+    else if Len(m.token) = 64
+        m.dashboardMode = true
+        conn = FetchDeviceData()
     else
+        ' Keep compatibility with old installs that stored a full HA token.
         conn = ValidateConnection()
     end if
     print "HA TASK: validation result = "; conn
@@ -37,14 +44,14 @@ sub executeTask()
     end if
     m.top.connectionStatus = "connected"
 
-    if m.pairingMode
+    if m.dashboardMode
         m.lastCommandId = -1
         while true
             for tick = 1 to 120
                 Sleep(250)
                 ProcessPendingCommand()
             end for
-            refreshStatus = FetchPairingData()
+            refreshStatus = FetchDeviceData()
             if refreshStatus <> "ok" then m.top.connectionStatus = refreshStatus
         end while
     end if
@@ -124,15 +131,107 @@ function HttpPostPublic(path as string, body as string) as object
     return { code: msg.GetResponseCode(), body: msg.GetString() }
 end function
 
+function HttpPost(path as string, body as string) as object
+    xfer = CreateObject("roUrlTransfer")
+    xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    xfer.InitClientCertificates()
+    xfer.RetainBodyOnError(true)
+    xfer.AddHeader("Content-Type", "application/json")
+    xfer.AddHeader("Authorization", "Bearer " + m.token)
+    xfer.SetUrl(m.url + path)
+    port = CreateObject("roMessagePort")
+    xfer.SetMessagePort(port)
+    if not xfer.AsyncPostFromString(body) then return { code: -1, body: "" }
+    msg = Wait(15000, port)
+    if msg = invalid or Type(msg) <> "roUrlEvent" then return { code: -2, body: "" }
+    return { code: msg.GetResponseCode(), body: msg.GetString() }
+end function
+
+function RequestAndWaitForPairing() as string
+    m.top.connectionStatus = "pairing_request"
+    deviceInfo = CreateObject("roDeviceInfo")
+    deviceName = "Roku"
+    if deviceInfo <> invalid
+        modelName = deviceInfo.GetModelDisplayName()
+        if modelName <> invalid and modelName <> "" then deviceName = modelName.ToStr()
+    end if
+    appVersion = ""
+    appInfo = CreateObject("roAppInfo")
+    if appInfo <> invalid then appVersion = appInfo.GetVersion()
+    requestBody = FormatJson({
+        device_name: deviceName
+        platform: "roku"
+        app_version: appVersion
+    })
+    response = HttpPostPublic("/api/family_dashboard/pairing/request", requestBody)
+    if response.code = 403 then return "network_denied"
+    if response.code = 404 then return "pairing_unavailable"
+    if response.code < 200 or response.code >= 300 then return "network_error"
+    request = ParseJson(response.body)
+    if not IsAssociativeArray(request) or request.device_code = invalid then return "network_error"
+
+    code = UCase(request.device_code.ToStr())
+    pollSeconds = 3
+    if request.poll_interval <> invalid then pollSeconds = Int(request.poll_interval)
+    if pollSeconds < 2 then pollSeconds = 2
+    if pollSeconds > 10 then pollSeconds = 10
+    expiresIn = 300
+    if request.expires_in <> invalid then expiresIn = Int(request.expires_in)
+    m.top.pairingCode = code
+    m.top.connectionStatus = "pairing_pending"
+
+    elapsed = 0
+    while elapsed < expiresIn
+        Sleep(pollSeconds * 1000)
+        elapsed = elapsed + pollSeconds
+        statusResponse = HttpGetPublic("/api/family_dashboard/pairing/status?device_code=" + UrlEscape(code))
+        if statusResponse.code = 404 then return "pairing_expired"
+        if statusResponse.code = 403 then return "network_denied"
+        if statusResponse.code < 200 or statusResponse.code >= 300
+            ' A transient LAN failure should not throw away a still-valid code.
+            m.top.connectionStatus = "pairing_pending"
+        else
+            statusData = ParseJson(statusResponse.body)
+            if IsAssociativeArray(statusData)
+                if statusData.status = "approved"
+                    if statusData.device_token = invalid or statusData.device_token = "" then return "pairing_expired"
+                    m.token = UCase(statusData.device_token.ToStr())
+                    SaveDeviceCredential()
+                    return FetchDeviceData()
+                else if statusData.status = "denied"
+                    return "pairing_denied"
+                else if statusData.status = "expired"
+                    return "pairing_expired"
+                end if
+            end if
+        end if
+    end while
+    return "pairing_expired"
+end function
+
+sub SaveDeviceCredential()
+    section = CreateObject("roRegistrySection", "haDashboard")
+    section.Write("url", m.url)
+    section.Write("token", m.token)
+    section.Flush()
+    m.top.lastConfig = {
+        url: m.url
+        token: m.token
+        mealEntity: m.top.mealEntity
+        insideEntity: m.top.insideEntity
+        outsideEntity: m.top.outsideEntity
+    }
+    print "HA TASK: saved per-device credential"
+end sub
+
 sub ProcessPendingCommand()
     command = m.top.command
     if not IsAssociativeArray(command) or command.request_id = invalid then return
     if command.request_id = m.lastCommandId then return
     m.lastCommandId = command.request_id
     print "COMMAND TASK: received "; command.action; " -> "; command.entity_id
-    commandPath = "/api/roku_dashboard/" + UrlEscape(UCase(m.token)) + "/action"
     commandBody = FormatJson(command)
-    response = HttpPostPublic(commandPath, commandBody)
+    response = HttpPost("/api/family_dashboard/device/action", commandBody)
     ok = response.code >= 200 and response.code < 300
     print "COMMAND HTTP: status="; response.code; " body="; response.body
     m.top.commandResult = {
@@ -140,10 +239,10 @@ sub ProcessPendingCommand()
         ok: ok
         status: response.code
     }
-    if ok then FetchPairingData()
+    if ok then FetchDeviceData()
 end sub
 
-function FetchPairingData() as string
+function FetchLegacyData() as string
     resp = HttpGetPublic("/api/roku_dashboard/" + UrlEscape(UCase(m.token)))
     if resp.code = 401 then return "auth_error"
     if resp.code < 200 or resp.code >= 300 then return "network_error"
@@ -152,12 +251,27 @@ function FetchPairingData() as string
 
     if data.device_token <> invalid and data.device_token <> ""
         m.token = UCase(data.device_token.ToStr())
-        section = CreateObject("roRegistrySection", "haDashboard")
-        section.Write("token", m.token)
-        section.Flush()
+        SaveDeviceCredential()
         print "HA TASK: pairing upgraded to secure device credential"
     end if
 
+    return ApplyDashboardData(data)
+end function
+
+function FetchDeviceData() as string
+    resp = HttpGet("/api/family_dashboard/device")
+    if resp.code = 401 then return "auth_error"
+    if resp.code = 403
+        data = ParseJson(resp.body)
+        if IsAssociativeArray(data) and data.error = "network_access_denied" then return "network_denied"
+    end if
+    if resp.code < 200 or resp.code >= 300 then return "network_error"
+    data = ParseJson(resp.body)
+    if not IsAssociativeArray(data) then return "network_error"
+    return ApplyDashboardData(data)
+end function
+
+function ApplyDashboardData(data as object) as string
     states = data.states
     if not IsAssociativeArray(states) then states = {}
     m.states = states

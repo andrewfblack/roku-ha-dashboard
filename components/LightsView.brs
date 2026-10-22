@@ -25,7 +25,7 @@ sub buildCards()
         panel.translation = [x + 7, y + 7]
         panel.width = 536
         panel.height = 161
-        panel.color = "0x241A10EE"
+        panel.color = "0x241A10F2"
         name = m.grid.CreateChild("Label")
         name.translation = [x + 28, y + 25]
         name.width = 490
@@ -78,6 +78,7 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    m.top.activity = key
     count = m.items.Count()
     if key = "left"
         if count = 0 or m.focusIndex MOD 3 = 0

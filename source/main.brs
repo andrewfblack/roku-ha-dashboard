@@ -4,6 +4,9 @@ sub Main()
     screen.SetMessagePort(port)
     scene = screen.CreateScene("MainScene")
     screen.Show()
+    ' SceneGraph may ignore focus requests made while component init() is
+    ' running. Signal the scene only after the screen is on the display.
+    scene.dashboardReady = true
 
     ' Reset Roku's inactivity timer while this always-on dashboard is open.
     appManager = CreateObject("roAppManager")

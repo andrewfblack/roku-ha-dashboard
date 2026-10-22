@@ -12,7 +12,7 @@ sub init()
         focus.translation = [x, y] : focus.width = 550 : focus.height = 175
         focus.color = "0xF2A24BFF" : focus.visible = false
         panel = m.grid.CreateChild("Rectangle")
-        panel.translation = [x + 7, y + 7] : panel.width = 536 : panel.height = 161 : panel.color = "0x241A10EE"
+        panel.translation = [x + 7, y + 7] : panel.width = 536 : panel.height = 161 : panel.color = "0x241A10F2"
         name = m.grid.CreateChild("Label")
         name.translation = [x + 28, y + 48] : name.width = 490 : name.height = 62 : name.horizAlign = "center"
         m.cards.Push({ focus: focus, panel: panel, name: name })
@@ -45,6 +45,7 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    m.top.activity = key
     count = m.items.Count()
     if key = "left"
         if count = 0 or m.focusIndex MOD 3 = 0 then m.top.tabRequest = "previous" else m.focusIndex = m.focusIndex - 1 : renderFocus()

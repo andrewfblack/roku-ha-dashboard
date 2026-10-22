@@ -62,10 +62,10 @@ sub init()
         m.top.FindNode("mealRing")
         m.top.FindNode("climateRing")
     ]
+    SetFocusIndex(0)
 
     m.dateLabel.text = TodayLabel()
     m.mealContent.text = "Waiting for Home Assistant..."
-    m.top.SetFocus(true)
 end sub
 
 ' ---------------- Field observers ----------------
@@ -128,6 +128,9 @@ sub onThemeData()
     if theme = invalid then return
     opacity = 90
     if theme.item_opacity <> invalid then opacity = theme.item_opacity
+    ' Roku is viewed from farther away than the web dashboard. Preserve the
+    ' configured colour while keeping text readable over detailed artwork.
+    if opacity < 92 then opacity = 92
     panelColor = ThemeColor(theme.item_background, opacity)
     bodyColor = ThemeColor(theme.body_text, 100)
     mutedColor = ThemeColor(theme.muted_text, 100)
@@ -167,7 +170,14 @@ function ThemeColor(value as dynamic, opacity as integer) as string
         if Len(color) <> 6 then color = "FFF7EA"
     end if
     alpha = Int(opacity * 255 / 100)
-    return "0x" + color + Right("0" + Hex(alpha), 2)
+    if alpha < 0 then alpha = 0
+    if alpha > 255 then alpha = 255
+    return "0x" + color + ByteToHex(alpha)
+end function
+
+function ByteToHex(value as integer) as string
+    digits = "0123456789ABCDEF"
+    return Mid(digits, Int(value / 16) + 1, 1) + Mid(digits, (value MOD 16) + 1, 1)
 end function
 
 sub onConnectionStatus()
@@ -441,7 +451,8 @@ sub onMealKeyboardButton()
     end if
     dialog.close = true
     m.mealDialog = invalid
-    m.top.GetScene().SetFocus(true)
+    m.top.SetFocus(true)
+    m.top.restoreFocus = "mealKeyboardClosed"
 end sub
 
 sub onCommandResult()
@@ -484,6 +495,8 @@ sub UpdateClimate()
         temp = ""
         if st.attributes <> invalid and st.attributes.temperature <> invalid
             temp = st.attributes.temperature.ToStr()
+        else if st.attributes <> invalid and st.attributes.current_temperature <> invalid
+            temp = st.attributes.current_temperature.ToStr()
         end if
         m.outsideValue.text = CleanTemperature(temp)
         m.outsideIcon.uri = WeatherIconUri(st.state.ToStr())
@@ -496,7 +509,7 @@ sub UpdateClimate()
         m.outsideDetail.text = detail
     else
         m.outsideValue.text = "--"
-        m.outsideIcon.uri = "pkg:/images/weather/unknown.png"
+        m.outsideIcon.uri = "pkg:/images/weather/home/unknown.png"
         m.outsideName.text = "Outside"
         m.outsideCondition.text = "Unknown"
         m.outsideDetail.text = "No weather entity found"
@@ -584,7 +597,7 @@ function WeatherIconUri(condition as string) as string
         "exceptional": true
     }
     if not supported.DoesExist(key) then key = "unknown"
-    return "pkg:/images/weather/" + key + ".png"
+    return "pkg:/images/weather/home/" + key + ".png"
 end function
 
 function TodayLabel() as string
@@ -606,6 +619,7 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    m.top.activity = key
     if key = "timeout"
         if m.agendaOpen then CloseAgenda()
         if m.mealsOpen then CloseMeals()

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <component name="MainScene" extends="Scene">
+  <interface>
+    <field id="dashboardReady" type="boolean" onChange="onDashboardReady" />
+  </interface>
   <script type="text/brightscript" uri="pkg:/components/MainScene.brs" />
   <children>
     <Poster id="background" width="1920" height="1080" loadDisplayMode="scaleToZoom" uri="pkg:/images/fall-bg.jpg" />

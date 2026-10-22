@@ -11,6 +11,7 @@ sub init()
     m.columns = []
     m.days = []
     m.dayIndex = 0
+    m.dayOffset = 0
     m.eventIndex = 0
     m.detailOpen = false
     buildColumns()
@@ -26,16 +27,22 @@ sub buildColumns()
         weekday = m.columnsGroup.CreateChild("Label")
         weekday.height = 42
         weekday.horizAlign = "center"
+        weekday.font = "font:MediumSystemFont"
         dateLabel = m.columnsGroup.CreateChild("Label")
         dateLabel.height = 48
         dateLabel.horizAlign = "center"
+        dateLabel.font = "font:MediumSystemFont"
         eventCards = []
         for row = 0 to 5
+            eventFocus = m.columnsGroup.CreateChild("Rectangle")
+            eventFocus.color = "0xF2A24BFF"
+            eventFocus.visible = false
             card = m.columnsGroup.CreateChild("Rectangle")
             bar = m.columnsGroup.CreateChild("Rectangle")
-            eventFocus = m.columnsGroup.CreateChild("Rectangle")
             timeLabel = m.columnsGroup.CreateChild("Label")
             titleLabel = m.columnsGroup.CreateChild("Label")
+            timeLabel.font = "font:SmallSystemFont"
+            titleLabel.font = "font:MediumSystemFont"
             titleLabel.wrap = true
             titleLabel.maxLines = 2
             eventCards.Push({ card: card, bar: bar, focus: eventFocus, time: timeLabel, title: titleLabel })
@@ -56,6 +63,7 @@ sub onSchedule()
         m.days = data.days
     end if
     if m.dayIndex >= m.days.Count() then m.dayIndex = 0
+    m.dayOffset = 0
     m.eventIndex = 0
     RenderSchedule()
 end sub
@@ -64,12 +72,19 @@ sub RenderSchedule()
     count = m.days.Count()
     m.empty.visible = count = 0
     if count = 0 then return
-    columnWidth = Int(1760 / count)
+    visibleCount = count
+    if visibleCount > 5 then visibleCount = 5
+    if m.dayIndex < m.dayOffset then m.dayOffset = m.dayIndex
+    if m.dayIndex >= m.dayOffset + visibleCount then m.dayOffset = m.dayIndex - visibleCount + 1
+    if m.dayOffset + visibleCount > count then m.dayOffset = count - visibleCount
+    if m.dayOffset < 0 then m.dayOffset = 0
+    columnWidth = Int(1760 / visibleCount)
     for col = 0 to 6
         column = m.columns[col]
-        visible = col < count
+        visible = col < visibleCount
         SetColumnVisible(column, visible)
         if visible
+            dayDataIndex = m.dayOffset + col
             x = col * columnWidth
             width = columnWidth - 12
             column.focus.translation = [x, 0]
@@ -79,7 +94,7 @@ sub RenderSchedule()
             column.panel.translation = [x + 5, 5]
             column.panel.width = width - 10
             column.panel.height = 825
-            day = m.days[col]
+            day = m.days[dayDataIndex]
             if day.is_weekend then column.panel.color = "0x211A18EE" else column.panel.color = "0x17130FEE"
             column.header.translation = [x + 5, 5]
             column.header.width = width - 10
@@ -113,7 +128,7 @@ sub RenderSchedule()
                     eventCard.focus.width = width - 18
                     eventCard.focus.height = 106
                     eventCard.focus.color = "0xFFF0D5FF"
-                    eventCard.focus.visible = col = m.dayIndex and row = m.eventIndex
+                    eventCard.focus.visible = dayDataIndex = m.dayIndex and row = m.eventIndex
                     eventCard.time.translation = [x + 32, y + 8]
                     eventCard.time.width = width - 52
                     eventCard.time.height = 32
@@ -183,6 +198,7 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
+    m.top.activity = key
     if m.detailOpen
         if key = "back" or key = "left" or key = "OK"
             m.detail.visible = false

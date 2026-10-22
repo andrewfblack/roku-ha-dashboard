@@ -10,6 +10,10 @@ Tabs are represented by icons with a visible selected state. Home includes
 detail affordances for all of today's events and editable weekly meals, while
 daily forecasts use centered condition artwork beneath each weekday.
 
+The television layout uses a high-contrast header with labeled navigation,
+larger across-the-room typography, five-day calendar paging, opaque content
+surfaces, and display-size icon assets to avoid Roku image-scaling blur.
+
 The Home Assistant integration's Theme and colors section controls the Roku
 Home card background/opacity, headings, body and secondary text, selected
 focus border, title, and background-image darkening.
@@ -37,11 +41,11 @@ focus border, title, and background-image darkening.
 
 ## 1. Home Assistant preparation
 
-### Pairing code
-Install and configure the companion Roku Dashboard HACS integration. Open
-`sensor.roku_dashboard_config` in Developer Tools → States and copy its
-`pairing_code` attribute. The Roku needs only this 8-character code; it does
-not store a Home Assistant long-lived access token.
+### Pairing
+Install and configure the companion Family Dashboard HACS integration. The
+Roku creates its own 8-character pairing code and waits for approval in Home
+Assistant. Every Roku receives a separate revocable device credential; the TV
+never stores a Home Assistant long-lived access token.
 
 ### Meal plan sensor
 The channel reads the *state* of an entity you choose. Easiest option — a helper you can edit from the HA UI (even from your phone):
@@ -87,19 +91,25 @@ If you leave the inside/outside entity fields blank:
    (`rokudev` + your dev password), and upload the zip under **Development
    Application Installer**. The channel launches automatically.
 
-On first launch the **Connect to Home Assistant** screen appears. It has only
-two fields: your HA URL (e.g. `http://192.168.1.50:8123`) and pairing code.
-Use Up/Down to select a field and press **OK** to open Roku's native keyboard.
-Choose **SAVE** in the keyboard when finished, then select **CONNECT**.
-Everything is saved on the device, so setup only happens once (or after a
-failed pairing, when the values are restored).
+On first launch the **Connect to Home Assistant** screen searches the local
+IPv4 network for the Family Dashboard integration. If it is found, select
+**START PAIRING**. Otherwise enter the HA URL (for example,
+`http://192.168.1.50:8123`) with Roku's native keyboard.
+
+The TV displays an 8-character code. Open the **Family Dashboard** panel in
+Home Assistant, choose **Pair a device**, and approve the Roku showing that
+code. The credential and URL are then saved on the Roku, so setup only happens
+once unless that device is revoked.
 
 ## 3. Debugging
 
 - Roku debug console: `telnet <roku-ip> 8085` (close with Ctrl+] then `quit`).
-- If pairing fails: check the URL works from your phone's browser and enter the
-  current pairing code from `sensor.roku_dashboard_config`. HTTPS requires a
-  valid certificate (self-signed certs are not supported without code changes).
+- If discovery fails, enter the Roku-reachable Home Assistant URL manually.
+  Automatic discovery checks `homeassistant.local` and the Roku's local `/24`
+  IPv4 network on Home Assistant's standard port, 8123.
+- If pairing fails, verify the pending request in the Family Dashboard panel
+  and check the integration's Network access setting. HTTPS requires a valid
+  certificate (self-signed certificates are not supported without code changes).
 
 > **Display safety:** preventing the screensaver can contribute to image
 > retention or burn-in on susceptible displays. Exit the channel when it is
@@ -118,7 +128,8 @@ failed pairing, when the values are restored).
 manifest                          channel metadata (FHD)
 source/main.brs                   screen bootstrap
 components/MainScene.xml/.brs     coordinator: setup vs home, registry, task wiring
-components/SetupView.xml/.brs     first-run HA URL + pairing-code entry
+components/SetupView.xml/.brs     first-run discovery and pairing approval
+components/tasks/DiscoveryTask.*  local Home Assistant network discovery
 components/HomeView.xml/.brs      Home tab UI (calendar, meals, climate)
 components/tasks/HATask.xml/.brs  background task: REST + WebSocket to Home Assistant
 images/fall-bg.jpg                fall background

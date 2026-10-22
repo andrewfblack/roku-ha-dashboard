@@ -6,23 +6,25 @@
     <field id="commandRequest" type="assocarray" alwaysNotify="true" />
     <field id="commandResult" type="assocarray" onChange="onCommandResult" />
     <field id="keyInput" type="string" alwaysNotify="true" onChange="onKeyInput" />
+    <field id="activity" type="string" alwaysNotify="true" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/ClimateView.brs" />
   <children>
-    <TabIcons selected="climate" translation="[80,35]" />
-    <Label text="CLIMATE" width="400" height="72" translation="[680,48]" />
+    <Rectangle translation="[50,20]" width="1820" height="112" color="0x241A10F2" />
+    <TabIcons selected="climate" translation="[70,30]" />
+    <Label text="CLIMATE" width="400" height="72" translation="[720,43]" font="font:LargeSystemFont" />
     <Label id="status" text="UP/DOWN: temperature    OK: mode" width="650" height="52" translation="[1190,62]" horizAlign="right" />
-    <Rectangle translation="[180,175]" width="1560" height="790" color="0x241A10E8" />
-    <Label id="name" text="No climate entity selected" width="1400" height="70" translation="[260,225]" horizAlign="center" color="0xE0A85EFF" />
-    <Label id="index" text="" width="1400" height="44" translation="[260,305]" horizAlign="center" />
-    <Label id="current" text="--" width="680" height="140" translation="[270,410]" horizAlign="center" />
-    <Label text="CURRENT" width="680" height="46" translation="[270,555]" horizAlign="center" color="0xC0B49CFF" />
-    <Label id="target" text="--" width="680" height="140" translation="[970,410]" horizAlign="center" />
-    <Label text="TARGET" width="680" height="46" translation="[970,555]" horizAlign="center" color="0xC0B49CFF" />
-    <Label id="mode" text="Mode: --" width="650" height="60" translation="[310,690]" horizAlign="center" />
-    <Label id="action" text="Action: --" width="650" height="60" translation="[960,690]" horizAlign="center" />
-    <Group id="modeButtons" translation="[330,770]" />
-    <Label id="humidity" text="" width="1400" height="45" translation="[260,875]" horizAlign="center" />
-    <Label text="At first/last thermostat, LEFT/RIGHT changes tabs" width="1400" height="40" translation="[260,920]" horizAlign="center" color="0xC0B49CFF" />
+    <Rectangle translation="[180,165]" width="1560" height="835" color="0x241A10F2" />
+    <Label id="name" text="No climate entity selected" width="1400" height="70" translation="[260,205]" horizAlign="center" color="0xE0A85EFF" font="font:LargeSystemFont" />
+    <Label id="index" text="" width="1400" height="44" translation="[260,275]" horizAlign="center" />
+    <Label id="current" text="--" width="680" height="150" translation="[270,335]" horizAlign="center" font="font:LargestSystemFont" />
+    <Label text="CURRENT" width="680" height="50" translation="[270,485]" horizAlign="center" color="0xC0B49CFF" font="font:MediumSystemFont" />
+    <Label id="target" text="--" width="680" height="150" translation="[970,335]" horizAlign="center" font="font:LargestSystemFont" />
+    <Label text="TARGET" width="680" height="50" translation="[970,485]" horizAlign="center" color="0xC0B49CFF" font="font:MediumSystemFont" />
+    <Label id="mode" text="" visible="false" width="650" height="60" translation="[310,560]" horizAlign="center" />
+    <Label id="action" text="Status: --" width="680" height="60" translation="[620,560]" horizAlign="center" />
+    <Group id="modeButtons" translation="[360,650]" />
+    <Label id="humidity" text="" width="1400" height="45" translation="[260,900]" horizAlign="center" />
+    <Label text="UP/DOWN adjusts temperature • OK changes mode • LEFT/RIGHT changes tabs" width="1400" height="44" translation="[260,945]" horizAlign="center" color="0xC0B49CFF" />
   </children>
 </component>

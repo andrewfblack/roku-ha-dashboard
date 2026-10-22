@@ -5,20 +5,31 @@
     <field id="prefill" type="assocarray" onChange="onPrefill" />
     <field id="errorMessage" type="string" onChange="onErrorMessage" />
     <field id="inputActive" type="boolean" value="true" onChange="onInputActive" />
+    <field id="focusRequest" type="integer" alwaysNotify="true" onChange="onFocusRequest" />
+    <field id="restoreFocus" type="string" alwaysNotify="true" />
+    <field id="discoveryRequest" type="integer" alwaysNotify="true" />
+    <field id="discoveryStatus" type="string" onChange="onDiscoveryStatus" />
+    <field id="foundUrl" type="string" onChange="onFoundUrl" />
+    <field id="pairingCode" type="string" onChange="onPairingCode" />
+    <field id="pairingStatus" type="string" onChange="onPairingStatus" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/SetupView.brs" />
   <children>
     <Rectangle translation="[290,130]" width="1340" height="820" color="0x100A06E8" />
     <Rectangle translation="[290,130]" width="12" height="820" color="0xD78335FF" />
-    <Button text="CONNECT TO HOME ASSISTANT" translation="[365,190]"
+    <Button text="CONNECT TO HOME ASSISTANT" focusable="false" translation="[365,190]"
             minWidth="1190" maxWidth="1190" />
-    <ButtonGroup id="loginButtons" translation="[365,340]" minWidth="1190"
-                 maxWidth="1190" buttonHeight="92">
+    <ButtonGroup id="loginButtons" translation="[365,300]" minWidth="1190"
+                  maxWidth="1190" buttonHeight="92">
       <Button id="urlButton" text="HOME ASSISTANT URL" minWidth="1190" maxWidth="1190" />
-      <Button id="codeButton" text="PAIRING CODE - NOT ENTERED" minWidth="1190" maxWidth="1190" />
-      <Button id="connectButton" text="CONNECT" minWidth="1190" maxWidth="1190" />
+      <Button id="discoverButton" text="FIND HOME ASSISTANT" minWidth="1190" maxWidth="1190" />
+      <Button id="connectButton" text="START PAIRING" minWidth="1190" maxWidth="1190" />
     </ButtonGroup>
-    <Button id="messageButton" text="Find the code in sensor.roku_dashboard_config"
-            translation="[365,745]" minWidth="1190" maxWidth="1190" />
+    <Label id="pairingLabel" visible="false" translation="[365,635]" width="1190" height="90"
+           horizAlign="center" vertAlign="center" color="0xFFF7EAFF" />
+    <Label id="instructionsLabel" visible="false" translation="[365,725]" width="1190" height="74"
+           horizAlign="center" vertAlign="center" wrap="true" color="0xE9D7C0FF" />
+    <Button id="messageButton" focusable="false" text="Select FIND, or enter the Home Assistant URL manually"
+            translation="[365,815]" minWidth="1190" maxWidth="1190" />
   </children>
 </component>

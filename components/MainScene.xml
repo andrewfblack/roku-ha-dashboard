@@ -15,5 +15,6 @@
     <LightsView id="lightsView" visible="false" />
     <ScenesView id="scenesView" visible="false" />
     <ClimateView id="climateView" visible="false" />
+    <SecurityView id="securityView" visible="false" />
   </children>
 </component>

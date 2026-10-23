@@ -1,5 +1,5 @@
 sub init()
-    m.names = ["home", "calendar", "weather", "lights", "scenes", "climate"]
+    m.names = ["home", "calendar", "weather", "lights", "scenes", "climate", "security"]
     m.cards = []
     for i = 0 to m.names.Count() - 1
         focus = m.top.CreateChild("Rectangle")

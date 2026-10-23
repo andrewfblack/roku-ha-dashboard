@@ -13,6 +13,7 @@ sub init()
     m.lightsView = m.top.FindNode("lightsView")
     m.scenesView = m.top.FindNode("scenesView")
     m.climateView = m.top.FindNode("climateView")
+    m.securityView = m.top.FindNode("securityView")
     m.views = {
         home: m.homeView
         week: m.weekView
@@ -21,8 +22,9 @@ sub init()
         lights: m.lightsView
         scenes: m.scenesView
         climate: m.climateView
+        security: m.securityView
     }
-    m.tabOrder = ["home", "calendar", "weather", "lights", "scenes", "climate"]
+    m.tabOrder = ["home", "calendar", "weather", "lights", "scenes", "climate", "security"]
     m.currentTab = "home"
     m.pendingTab = ""
     m.tabsData = {}
@@ -43,6 +45,8 @@ sub init()
     m.lightsView.ObserveField("tabRequest", "onLightsTabRequest")
     m.scenesView.ObserveField("tabRequest", "onScenesTabRequest")
     m.climateView.ObserveField("tabRequest", "onClimateTabRequest")
+    m.securityView.ObserveField("tabRequest", "onSecurityTabRequest")
+    m.securityView.ObserveField("commandRequest", "onSecurityCommand")
     for each view in m.views
         m.views[view].ObserveField("activity", "onRemoteActivity")
     end for
@@ -137,6 +141,7 @@ sub showSetup(errorMessage as string, config as dynamic)
     m.lightsView.visible = false
     m.scenesView.visible = false
     m.climateView.visible = false
+    m.securityView.visible = false
     if config <> invalid
         m.setupView.prefill = config
     end if
@@ -172,6 +177,7 @@ sub startDashboard(config as object)
     m.lightsView.visible = false
     m.scenesView.visible = false
     m.climateView.visible = false
+    m.securityView.visible = false
     if isPairing
         m.inactivityTimer.control = "stop"
     else
@@ -199,6 +205,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("lightsData", "onLightsData")
     m.haTask.ObserveField("scenesData", "onScenesData")
     m.haTask.ObserveField("climatesData", "onClimatesData")
+    m.haTask.ObserveField("securityData", "onSecurityData")
     m.haTask.ObserveField("commandResult", "onCommandResult")
     m.haTask.ObserveField("mealPlan", "onMealPlan")
     m.haTask.ObserveField("weeklyMealPlan", "onWeeklyMealPlan")
@@ -310,6 +317,10 @@ sub onClimatesData()
     m.climateView.items = m.haTask.climatesData
 end sub
 
+sub onSecurityData()
+    m.securityView.data = m.haTask.securityData
+end sub
+
 sub onHomeTabRequest()
     navigateTab(m.homeView.tabRequest)
 end sub
@@ -341,6 +352,10 @@ end sub
 
 sub onClimateTabRequest()
     navigateTab(m.climateView.tabRequest)
+end sub
+
+sub onSecurityTabRequest()
+    navigateTab(m.securityView.tabRequest)
 end sub
 
 sub showWeatherTab()
@@ -497,11 +512,16 @@ sub onClimateCommand()
     sendCommand(m.climateView.commandRequest)
 end sub
 
+sub onSecurityCommand()
+    sendCommand(m.securityView.commandRequest)
+end sub
+
 sub onCommandResult()
     result = m.haTask.commandResult
     m.lightsView.commandResult = result
     m.scenesView.commandResult = result
     m.climateView.commandResult = result
+    m.securityView.commandResult = result
     m.homeView.commandResult = result
 end sub
 

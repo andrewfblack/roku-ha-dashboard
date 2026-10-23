@@ -20,6 +20,7 @@
     <field id="lightsData" type="array" alwaysNotify="true" />
     <field id="scenesData" type="array" alwaysNotify="true" />
     <field id="climatesData" type="array" alwaysNotify="true" />
+    <field id="securityData" type="assocarray" alwaysNotify="true" />
     <field id="command" type="assocarray" alwaysNotify="true" />
     <field id="commandResult" type="assocarray" alwaysNotify="true" />
     <field id="mealPlan" type="string" alwaysNotify="true" />

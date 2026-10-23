@@ -32,6 +32,8 @@ focus border, title, and background-image darkening.
 - **Lights tab** — toggle selected lights and cycle brightness presets
 - **Scenes tab** — activate selected Home Assistant scenes and scripts
 - **Climate tab** — adjust target temperature and cycle HVAC modes
+- **Security tab** — monitor up to two garage doors, four locks, an alarm
+  panel, and selected family members' home/away status
 - **Live updates** — via the Home Assistant WebSocket API
 - **Always-on display** — keeps Roku's system screensaver from replacing the dashboard while the channel is open
 - **Tab navigation** — move Right through the Home panels to Weather; Left returns Home

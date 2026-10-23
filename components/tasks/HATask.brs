@@ -332,6 +332,7 @@ function ApplyDashboardData(data as object) as string
     if IsArray(data.lights) then m.top.lightsData = data.lights
     if IsArray(data.scenes) then m.top.scenesData = data.scenes
     if IsArray(data.climates) then m.top.climatesData = data.climates
+    if IsAssociativeArray(data.security) then m.top.securityData = data.security else m.top.securityData = {}
     m.top.connectionStatus = "connected"
     return "ok"
 end function

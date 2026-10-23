@@ -98,7 +98,7 @@
     </Label>
     <Label id="insideValue" text="--" horizAlign="center" width="340" height="130" translation="[1050,670]" font="font:LargestSystemFont">
     </Label>
-    <Label id="insideDetail" text="" horizAlign="center" width="340" height="52" color="0xC0B49CFF" translation="[1050,830]">
+    <Label id="insideDetail" text="" horizAlign="center" width="340" height="52" color="0xC0B49CFF" translation="[1050,940]">
     </Label>
 
     <Label id="outsideName" text="Outside" horizAlign="center" width="340" height="48" color="0xE0A85EFF" translation="[1460,600]" font="font:MediumSystemFont">
@@ -107,7 +107,7 @@
     <Label id="outsideValue" text="--" horizAlign="center" width="340" height="100" translation="[1460,650]" font="font:LargestSystemFont">
     </Label>
     <Label id="outsideCondition" text="Unknown" horizAlign="center" width="340" height="42" color="0xC0B49CFF" translation="[1460,875]" visible="false" />
-    <Label id="outsideDetail" text="" horizAlign="center" width="340" height="38" color="0xC0B49CFF" translation="[1460,875]">
+    <Label id="outsideDetail" text="" horizAlign="center" width="340" height="38" color="0xC0B49CFF" translation="[1460,940]">
     </Label>
 
     <Group id="weeklyMeals" visible="false">

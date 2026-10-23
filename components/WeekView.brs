@@ -180,8 +180,20 @@ end function
 function EventTime(event as object) as string
     if event.all_day = true then return "ALL DAY"
     value = event.start.ToStr()
-    if Len(value) >= 16 then return Mid(value, 12, 5)
+    if Len(value) >= 16 then return Time12Hour(value)
     return ""
+end function
+
+function Time12Hour(iso as string) as string
+    hour = Val(Mid(iso, 12, 2))
+    minute = Mid(iso, 15, 2)
+    suffix = "AM"
+    if hour >= 12
+        suffix = "PM"
+        hour = hour - 12
+    end if
+    if hour = 0 then hour = 12
+    return hour.ToStr() + ":" + minute + " " + suffix
 end function
 
 sub OpenDetail()

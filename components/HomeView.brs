@@ -398,10 +398,14 @@ sub UpdateClimate()
             temp = m.weatherData.temperature.ToStr()
             if m.weatherData.temperature_unit <> invalid then unit = m.weatherData.temperature_unit.ToStr()
         end if
-        m.outsideValue.text = CleanTemperatureWithUnit(temp, unit)
+        outsideTemperature = CleanTemperatureWithUnit(temp, unit)
+        m.outsideValue.text = outsideTemperature
         m.outsideIcon.uri = WeatherIconUri(st.state.ToStr())
         m.outsideName.text = "Outside"
-        m.outsideCondition.text = TitleCase(st.state.ToStr())
+        ' Keep the temperature in the visible condition line as well. Some
+        ' Roku firmware versions intermittently omit the large value label
+        ' while the weather poster and detail labels still render.
+        m.outsideCondition.text = outsideTemperature + "  " + TitleCase(st.state.ToStr())
         detail = ""
         if st.attributes <> invalid and st.attributes.humidity <> invalid
             detail = st.attributes.humidity.ToStr() + "% humidity"

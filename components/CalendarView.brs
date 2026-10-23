@@ -277,7 +277,6 @@ function onKeyEvent(key as string, press as boolean) as boolean
         if key = "down" or key = "OK"
             m.calendarFocused = true
             RenderMonth()
-            if key = "OK" then OpenDayPopup()
             return true
         else if key = "left" or key = "back"
             m.top.tabRequest = "previous"

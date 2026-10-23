@@ -6,6 +6,7 @@ sub init()
     m.top.focusable = true
     m.states = {}
     m.resolvedEntities = {}
+    m.weatherData = {}
     m.focusIndex = 0
 
     m.todayRowTimes = []
@@ -71,6 +72,12 @@ end sub
 sub onResolvedEntities()
     m.resolvedEntities = m.top.resolvedEntities
     if m.resolvedEntities = invalid then m.resolvedEntities = {}
+    UpdateClimate()
+end sub
+
+sub onWeatherData()
+    m.weatherData = m.top.weatherData
+    if m.weatherData = invalid then m.weatherData = {}
     UpdateClimate()
 end sub
 
@@ -384,6 +391,12 @@ sub UpdateClimate()
         unit = ""
         if st.attributes <> invalid and st.attributes.temperature_unit <> invalid
             unit = st.attributes.temperature_unit.ToStr()
+        end if
+        ' Keep the Home card populated even when the configured weather entity
+        ' exposes its current reading only through the weather payload.
+        if temp = "" and m.weatherData <> invalid and m.weatherData.temperature <> invalid
+            temp = m.weatherData.temperature.ToStr()
+            if m.weatherData.temperature_unit <> invalid then unit = m.weatherData.temperature_unit.ToStr()
         end if
         m.outsideValue.text = CleanTemperatureWithUnit(temp, unit)
         m.outsideIcon.uri = WeatherIconUri(st.state.ToStr())

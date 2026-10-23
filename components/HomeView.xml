@@ -5,6 +5,7 @@
     <field id="mealEntity" type="string" />
     <field id="states" type="assocarray" onChange="onStates" />
     <field id="resolvedEntities" type="assocarray" onChange="onResolvedEntities" />
+    <field id="weatherData" type="assocarray" onChange="onWeatherData" />
     <field id="todayEvents" type="array" onChange="onTodayEvents" />
     <field id="calendarSchedule" type="assocarray" onChange="onCalendarSchedule" />
     <field id="mealPlan" type="string" onChange="onMealPlan" />

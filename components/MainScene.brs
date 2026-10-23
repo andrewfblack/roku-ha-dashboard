@@ -274,6 +274,7 @@ sub onCalendarSchedule()
 end sub
 
 sub onWeatherData()
+    m.homeView.weatherData = m.haTask.weatherData
     m.weatherView.weatherData = m.haTask.weatherData
 end sub
 

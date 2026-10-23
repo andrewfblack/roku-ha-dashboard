@@ -480,6 +480,7 @@ end sub
 sub onThemeData()
     theme = m.haTask.themeData
     m.homeView.themeData = theme
+    m.calendarView.themeData = theme
     if theme <> invalid and theme.background_overlay <> invalid
         overlay = theme.background_overlay
         if overlay < 45 then overlay = 45

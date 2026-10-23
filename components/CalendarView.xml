@@ -2,6 +2,7 @@
 <component name="CalendarView" extends="Group">
   <interface>
     <field id="monthCalendar" type="assocarray" onChange="onMonthCalendar" />
+    <field id="themeData" type="assocarray" onChange="onThemeData" />
     <field id="tabRequest" type="string" alwaysNotify="true" />
     <field id="keyInput" type="string" alwaysNotify="true" onChange="onKeyInput" />
     <field id="activity" type="string" alwaysNotify="true" />
@@ -15,9 +16,17 @@
 
     <Rectangle id="monthPanel" translation="[80,170]" width="1760" height="830" color="0x241A10F2" />
     <Label id="monthTitle" text="" width="1000" height="60" translation="[120,205]" color="0xE0A85EFF" font="font:LargeSystemFont" />
-    <Label text="[ ] today     * has events" width="520" height="44" translation="[1280,215]" horizAlign="right" color="0xC0B49CFF" />
+    <Label text="DOWN: select calendar     OK: open day" width="900" height="44" translation="[900,215]" horizAlign="right" color="0xC0B49CFF" />
     <Group id="monthGrid" translation="[100,300]" />
     <Label id="empty" text="No calendar data available" width="1000" height="70" translation="[120,320]" horizAlign="left" visible="false" color="0xC0B49CFF" />
-    <Label text="LEFT/RIGHT changes tabs" width="1760" height="42" translation="[80,1000]" horizAlign="right" color="0xC0B49CFF" />
+    <Label id="calendarHint" text="LEFT/RIGHT changes tabs" width="1760" height="42" translation="[80,1000]" horizAlign="right" color="0xC0B49CFF" />
+    <Group id="dayPopup" visible="false">
+      <Rectangle width="1920" height="1080" color="0x100A06F4" />
+      <Rectangle id="popupPanel" translation="[300,210]" width="1320" height="660" color="0x241A10FF" />
+      <Label id="popupTitle" text="" width="1180" height="70" translation="[370,270]" color="0xE0A85EFF" font="font:LargeSystemFont" />
+      <Group id="popupRows" translation="[370,370]" />
+      <Label id="popupEmpty" text="No events this day" width="1180" height="60" translation="[370,410]" color="0xC0B49CFF" visible="false" />
+      <Label text="BACK or OK to close" width="1180" height="50" translation="[370,790]" horizAlign="center" color="0xC0B49CFF" />
+    </Group>
   </children>
 </component>

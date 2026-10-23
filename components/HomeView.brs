@@ -373,7 +373,7 @@ sub UpdateClimate()
         else
             value = st.state.ToStr()
         end if
-        m.insideValue.text = CleanTemperature(value)
+        m.insideValue.text = CleanInsideTemperature(value)
         m.insideName.text = "Inside"
         detail = ""
         humidityId = FieldOrBlank(m.resolvedEntities, "inside_humidity")
@@ -459,6 +459,13 @@ function CleanTemperature(value as string) as string
         value = Left(value, Len(value) - 2)
     end if
     return value + Chr(176)
+end function
+
+function CleanInsideTemperature(value as string) as string
+    if value = "" or value = "unknown" or value = "unavailable" then return "--"
+    number = Val(value)
+    rounded = Int(number + 0.5)
+    return rounded.ToStr() + Chr(176) + "F"
 end function
 
 function CleanTemperatureWithUnit(value as string, unit as string) as string

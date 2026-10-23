@@ -6,9 +6,10 @@ The interface bundles only the Material Design Icons it uses for tabs,
 weather, climate modes, settings, and details. Their Apache 2.0 license is
 included at `images/mdi/LICENSE`.
 
-Tabs are represented by icons with a visible selected state. Home includes
-detail affordances for all of today's events and editable weekly meals, while
-daily forecasts use centered condition artwork beneath each weekday.
+Tabs are represented by icons with a visible selected state. Home shows today's
+and tomorrow's events and editable weekly meals; OK on the calendar panel opens
+the week calendar page. Daily forecasts use centered condition artwork beneath
+each weekday.
 
 The television layout uses a high-contrast header with labeled navigation,
 larger across-the-room typography, five-day calendar paging, opaque content
@@ -18,8 +19,9 @@ The Home Assistant integration's Theme and colors section controls the Roku
 Home card background/opacity, headings, body and secondary text, selected
 focus border, title, and background-image darkening.
 
-- **Calendar** — today's events and month overview on Home, plus a dedicated
-  Skylight-inspired rolling family schedule with 3–7 color-coded day columns
+- **Calendar** — today's and tomorrow's events on Home; OK opens the standalone
+  Skylight-inspired week calendar with 3–7 color-coded day columns. The
+  Calendar tab shows the monthly overview.
 - **Meal plan** — from a configurable HA sensor (default: `sensor.meal_plan`)
 - **Climate** — inside temperature/humidity and outside temperature/condition
 - **Weekly meals** — today's meal on Home; OK opens editable Monday–Sunday planning
@@ -131,6 +133,8 @@ components/MainScene.xml/.brs     coordinator: setup vs home, registry, task wir
 components/SetupView.xml/.brs     first-run discovery and pairing approval
 components/tasks/DiscoveryTask.*  local Home Assistant network discovery
 components/HomeView.xml/.brs      Home tab UI (calendar, meals, climate)
+components/WeekView.xml/.brs      standalone week calendar opened from Home
+components/CalendarView.xml/.brs  monthly overview tab
 components/tasks/HATask.xml/.brs  background task: REST + WebSocket to Home Assistant
 images/fall-bg.jpg                fall background
 images/winter-bg.jpg              winter background

@@ -8,12 +8,14 @@ sub init()
     m.setupView = m.top.FindNode("setupView")
     m.homeView = m.top.FindNode("homeView")
     m.calendarView = m.top.FindNode("calendarView")
+    m.weekView = m.top.FindNode("weekView")
     m.weatherView = m.top.FindNode("weatherView")
     m.lightsView = m.top.FindNode("lightsView")
     m.scenesView = m.top.FindNode("scenesView")
     m.climateView = m.top.FindNode("climateView")
     m.views = {
         home: m.homeView
+        week: m.weekView
         calendar: m.calendarView
         weather: m.weatherView
         lights: m.lightsView
@@ -35,6 +37,7 @@ sub init()
     m.focusRetryTimer.ObserveField("fire", "onFocusRetry")
     m.homeView.ObserveField("tabRequest", "onHomeTabRequest")
     m.calendarView.ObserveField("tabRequest", "onCalendarTabRequest")
+    m.weekView.ObserveField("tabRequest", "onWeekTabRequest")
     m.weatherView.ObserveField("tabRequest", "onWeatherTabRequest")
     m.lightsView.ObserveField("tabRequest", "onLightsTabRequest")
     m.scenesView.ObserveField("tabRequest", "onScenesTabRequest")
@@ -128,6 +131,7 @@ sub showSetup(errorMessage as string, config as dynamic)
     focusActiveView()
     m.homeView.visible = false
     m.calendarView.visible = false
+    m.weekView.visible = false
     m.weatherView.visible = false
     m.lightsView.visible = false
     m.scenesView.visible = false
@@ -162,6 +166,7 @@ sub startDashboard(config as object)
     m.setupView.inputActive = false
     m.setupView.visible = isPairing
     m.calendarView.visible = false
+    m.weekView.visible = false
     m.weatherView.visible = false
     m.lightsView.visible = false
     m.scenesView.visible = false
@@ -184,7 +189,6 @@ sub startDashboard(config as object)
     m.haTask = m.top.CreateChild("HATask")
     m.haTask.ObserveField("states", "onStates")
     m.haTask.ObserveField("resolvedEntities", "onResolvedEntities")
-    m.haTask.ObserveField("calendarEvents", "onCalendarEvents")
     m.haTask.ObserveField("todayEvents", "onTodayEvents")
     m.haTask.ObserveField("monthCalendar", "onMonthCalendar")
     m.haTask.ObserveField("calendarSchedule", "onCalendarSchedule")
@@ -256,20 +260,17 @@ sub onResolvedEntities()
     m.homeView.resolvedEntities = m.haTask.resolvedEntities
 end sub
 
-sub onCalendarEvents()
-    m.homeView.calendarEvents = m.haTask.calendarEvents
-end sub
-
 sub onTodayEvents()
     m.homeView.todayEvents = m.haTask.todayEvents
 end sub
 
 sub onMonthCalendar()
-    m.homeView.monthCalendar = m.haTask.monthCalendar
+    m.calendarView.monthCalendar = m.haTask.monthCalendar
 end sub
 
 sub onCalendarSchedule()
-    m.calendarView.schedule = m.haTask.calendarSchedule
+    m.weekView.schedule = m.haTask.calendarSchedule
+    m.homeView.calendarSchedule = m.haTask.calendarSchedule
 end sub
 
 sub onWeatherData()
@@ -310,6 +311,15 @@ sub onHomeTabRequest()
     navigateTab(m.homeView.tabRequest)
 end sub
 
+sub onWeekTabRequest()
+    direction = m.weekView.tabRequest
+    if direction = "home" or direction = "previous"
+        showTab("home")
+    else
+        navigateTab(direction)
+    end if
+end sub
+
 sub onCalendarTabRequest()
     navigateTab(m.calendarView.tabRequest)
 end sub
@@ -339,6 +349,13 @@ sub showHomeTab()
 end sub
 
 sub navigateTab(direction as string)
+    if direction = "week"
+        showTab("week")
+        return
+    else if direction = "calendar"
+        showTab("calendar")
+        return
+    end if
     currentIndex = 0
     for i = 0 to m.tabOrder.Count() - 1
         if m.tabOrder[i] = m.currentTab then currentIndex = i
@@ -387,6 +404,15 @@ function onKeyEvent(key as string, press as boolean) as boolean
     m.inactivityTimer.control = "start"
     if m.setupView.visible then return false
     if key = "back" and m.currentTab = "home" then return false
+    if m.currentTab = "week"
+        if key = "rewind"
+            showTab("home")
+            return true
+        else if key = "fastforward"
+            navigateTab("next")
+            return true
+        end if
+    end if
     if key = "rewind"
         navigateTab("previous")
         return true

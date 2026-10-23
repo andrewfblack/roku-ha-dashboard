@@ -10,6 +10,7 @@
     <SetupView id="setupView" visible="false" />
     <HomeView id="homeView" visible="false" />
     <CalendarView id="calendarView" visible="false" />
+    <WeekView id="weekView" visible="false" />
     <WeatherView id="weatherView" visible="false" />
     <LightsView id="lightsView" visible="false" />
     <ScenesView id="scenesView" visible="false" />

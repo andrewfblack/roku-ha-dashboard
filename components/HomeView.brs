@@ -1,20 +1,26 @@
 ' HomeView: the "Home" tab.
-' Renders today's calendar events, the meal plan sensor and the
-' inside/outside climate readout from Home Assistant data.
+' Renders today's and tomorrow's calendar events, the meal plan sensor and
+' the inside/outside climate readout from Home Assistant data. OK on the
+' calendar panel opens the standalone week calendar page.
 sub init()
     m.top.focusable = true
     m.states = {}
     m.resolvedEntities = {}
-    m.events = []
     m.focusIndex = 0
 
-    m.rowTimes = []
-    m.rowTitles = []
-    for i = 0 to 4
-        m.rowTimes.Push(m.top.FindNode("row" + i.ToStr() + "Time"))
-        m.rowTitles.Push(m.top.FindNode("row" + i.ToStr() + "Title"))
+    m.todayRowTimes = []
+    m.todayRowTitles = []
+    m.tomorrowRowTimes = []
+    m.tomorrowRowTitles = []
+    for i = 0 to 3
+        m.todayRowTimes.Push(m.top.FindNode("today" + i.ToStr() + "Time"))
+        m.todayRowTitles.Push(m.top.FindNode("today" + i.ToStr() + "Title"))
+        m.tomorrowRowTimes.Push(m.top.FindNode("tomorrow" + i.ToStr() + "Time"))
+        m.tomorrowRowTitles.Push(m.top.FindNode("tomorrow" + i.ToStr() + "Title"))
     end for
-    m.calendarEmpty = m.top.FindNode("calendarEmpty")
+    m.todayEmpty = m.top.FindNode("todayEmpty")
+    m.tomorrowEmpty = m.top.FindNode("tomorrowEmpty")
+    m.tomorrowHeader = m.top.FindNode("tomorrowHeader")
     m.calendarPanel = m.top.FindNode("calendarPanel")
     m.mealPanel = m.top.FindNode("mealPanel")
     m.climatePanel = m.top.FindNode("climatePanel")
@@ -33,22 +39,8 @@ sub init()
     m.statusLabel = m.top.FindNode("statusLabel")
     m.dateLabel = m.top.FindNode("dateLabel")
     m.titleLabel = m.top.FindNode("titleLabel")
-    m.monthTitle = m.top.FindNode("monthTitle")
-    m.monthGrid = m.top.FindNode("monthGrid")
-    m.monthDayLabels = []
-    buildMonthGrid()
-    m.monthAgenda = m.top.FindNode("monthAgenda")
-    m.agendaTitle = m.top.FindNode("agendaTitle")
-    m.agendaCount = m.top.FindNode("agendaCount")
-    m.agendaRowsGroup = m.top.FindNode("agendaRows")
-    m.agendaRows = []
-    m.monthEvents = []
     m.todayEvents = []
-    m.agendaEvents = []
-    m.agendaIndex = 0
-    m.agendaOffset = 0
-    m.agendaOpen = false
-    buildAgendaRows()
+    m.scheduleDays = []
     m.weeklyMeals = m.top.FindNode("weeklyMeals")
     m.mealRowsGroup = m.top.FindNode("mealRows")
     m.mealRows = []
@@ -82,24 +74,20 @@ sub onResolvedEntities()
     UpdateClimate()
 end sub
 
-sub onCalendarEvents()
-    m.events = m.top.calendarEvents
-    if m.events = invalid then m.events = []
-    RenderCalendar()
-end sub
-
 sub onTodayEvents()
     m.todayEvents = m.top.todayEvents
     if m.todayEvents = invalid then m.todayEvents = []
+    RenderToday()
 end sub
 
-sub onMonthCalendar()
-    value = m.top.monthCalendar
-    if value <> invalid
-        if value.events <> invalid then m.monthEvents = value.events else m.monthEvents = []
-        RenderMonth(value)
-        if m.agendaOpen then RenderAgenda()
+sub onCalendarSchedule()
+    value = m.top.calendarSchedule
+    if value <> invalid and value.days <> invalid
+        m.scheduleDays = value.days
+    else
+        m.scheduleDays = []
     end if
+    RenderTomorrow()
 end sub
 
 sub onMealPlan()
@@ -147,6 +135,7 @@ sub onThemeData()
     m.dateLabel.color = mutedColor
     m.statusLabel.color = mutedColor
     m.calendarHeader.color = itemHeaderColor
+    m.tomorrowHeader.color = itemHeaderColor
     m.mealHeader.color = itemHeaderColor
     m.climateHeader.color = itemHeaderColor
     m.mealContent.color = bodyColor
@@ -157,10 +146,14 @@ sub onThemeData()
     m.insideDetail.color = mutedColor
     m.outsideCondition.color = mutedColor
     m.outsideDetail.color = mutedColor
-    for i = 0 to m.rowTimes.Count() - 1
-        m.rowTimes[i].color = mutedColor
-        m.rowTitles[i].color = bodyColor
+    for i = 0 to m.todayRowTimes.Count() - 1
+        m.todayRowTimes[i].color = mutedColor
+        m.todayRowTitles[i].color = bodyColor
+        m.tomorrowRowTimes[i].color = mutedColor
+        m.tomorrowRowTitles[i].color = bodyColor
     end for
+    m.todayEmpty.color = mutedColor
+    m.tomorrowEmpty.color = mutedColor
 end sub
 
 function ThemeColor(value as dynamic, opacity as integer) as string
@@ -193,161 +186,51 @@ end sub
 
 ' ---------------- Rendering ----------------
 
-sub RenderCalendar()
-    count = m.events.Count()
-    for i = 0 to 4
-        visible = i < count and i < 3
-        m.rowTimes[i].visible = visible
-        m.rowTitles[i].visible = visible
-        if visible
-            ev = m.events[i]
-            m.rowTimes[i].text = ev.timeLabel
-            m.rowTitles[i].text = ev.title
+sub RenderToday()
+    RenderEventRows(m.todayEvents, m.todayRowTimes, m.todayRowTitles, m.todayEmpty, m.calendarHeader, "TODAY'S CALENDAR")
+end sub
+
+sub RenderTomorrow()
+    events = []
+    overflow = 0
+    if m.scheduleDays.Count() > 1
+        day = m.scheduleDays[1]
+        if day <> invalid
+            if day.events <> invalid then events = day.events
+            if day.overflow <> invalid then overflow = day.overflow
         end if
-    end for
-    m.calendarEmpty.visible = (count = 0)
-end sub
-
-sub buildMonthGrid()
-    weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
-    cellWidth = 117
-    for col = 0 to 6
-        label = m.monthGrid.CreateChild("Label")
-        label.text = weekdays[col]
-        label.width = 112
-        label.height = 34
-        label.horizAlign = "center"
-        label.color = "0xC0B49CFF"
-        label.translation = [col * cellWidth, 0]
-    end for
-
-    for index = 0 to 41
-        label = m.monthGrid.CreateChild("Label")
-        label.text = ""
-        label.width = 112
-        label.height = 42
-        label.horizAlign = "center"
-        label.translation = [(index MOD 7) * cellWidth, 42 + Int(index / 7) * 52]
-        m.monthDayLabels.Push(label)
-    end for
-end sub
-
-sub RenderMonth(month as object)
-    if month.title <> invalid then m.monthTitle.text = month.title.ToStr()
-    firstWeekday = month.first_weekday
-    daysInMonth = month.days_in_month
-    today = month.today
-    eventDays = month.event_days
-    if eventDays = invalid then eventDays = []
-
-    for index = 0 to 41
-        label = m.monthDayLabels[index]
-        day = index - firstWeekday + 1
-        if day < 1 or day > daysInMonth
-            label.text = ""
-        else
-            text = day.ToStr()
-            if ArrayContainsNumber(eventDays, day) then text = text + "*"
-            if day = today
-                label.text = "[" + text + "]"
-                label.color = "0xFFD080FF"
-            else
-                label.text = text
-                label.color = "0xFFFFFFFF"
-            end if
-        end if
-    end for
-end sub
-
-function ArrayContainsNumber(values as object, wanted as integer) as boolean
-    for each value in values
-        if value = wanted then return true
-    end for
-    return false
-end function
-
-sub buildAgendaRows()
-    for i = 0 to 7
-        y = i * 82
-        focus = m.agendaRowsGroup.CreateChild("Rectangle")
-        focus.translation = [0, y]
-        focus.width = 1580
-        focus.height = 72
-        focus.color = "0xD78335FF"
-        focus.visible = false
-        panel = m.agendaRowsGroup.CreateChild("Rectangle")
-        panel.translation = [6, y + 6]
-        panel.width = 1568
-        panel.height = 60
-        if i MOD 2 = 0 then panel.color = "0x382A1DFF" else panel.color = "0x2B2118FF"
-        dateLabel = m.agendaRowsGroup.CreateChild("Label")
-        dateLabel.translation = [24, y + 14]
-        dateLabel.width = 330
-        dateLabel.height = 48
-        titleLabel = m.agendaRowsGroup.CreateChild("Label")
-        titleLabel.translation = [370, y + 14]
-        titleLabel.width = 1170
-        titleLabel.height = 48
-        m.agendaRows.Push({ focus: focus, panel: panel, date: dateLabel, title: titleLabel })
-    end for
-end sub
-
-sub OpenAgenda()
-    m.agendaEvents = m.todayEvents
-    m.agendaOpen = true
-    m.agendaIndex = 0
-    m.agendaOffset = 0
-    m.monthAgenda.visible = true
-    RenderAgenda()
-end sub
-
-sub CloseAgenda()
-    m.agendaOpen = false
-    m.monthAgenda.visible = false
-end sub
-
-sub RenderAgenda()
-    m.agendaCount.text = m.agendaEvents.Count().ToStr() + " events"
-    m.agendaTitle.text = "TODAY'S EVENTS"
-    for rowIndex = 0 to 7
-        eventIndex = m.agendaOffset + rowIndex
-        row = m.agendaRows[rowIndex]
-        visible = eventIndex < m.agendaEvents.Count()
-        row.focus.visible = visible and eventIndex = m.agendaIndex
-        row.panel.visible = visible
-        row.date.visible = visible
-        row.title.visible = visible
-        if visible
-            event = m.agendaEvents[eventIndex]
-            row.date.text = AgendaDate(event.start, event.all_day)
-            row.title.text = event.title
-        end if
-    end for
-end sub
-
-function AgendaDate(startValue as dynamic, allDayValue as dynamic) as string
-    value = startValue.ToStr()
-    if Len(value) < 10 then return value
-    result = Mid(value, 6, 2) + "/" + Mid(value, 9, 2)
-    if allDayValue = true then return result + "  All day"
-    if Len(value) >= 16 then result = result + "  " + Mid(value, 12, 5)
-    return result
-end function
-
-function HandleAgendaKey(key as string) as boolean
-    count = m.agendaEvents.Count()
-    if key = "back" or key = "left"
-        CloseAgenda()
-    else if key = "up" and m.agendaIndex > 0
-        m.agendaIndex = m.agendaIndex - 1
-        if m.agendaIndex < m.agendaOffset then m.agendaOffset = m.agendaIndex
-        RenderAgenda()
-    else if key = "down" and m.agendaIndex + 1 < count
-        m.agendaIndex = m.agendaIndex + 1
-        if m.agendaIndex >= m.agendaOffset + 8 then m.agendaOffset = m.agendaIndex - 7
-        RenderAgenda()
     end if
-    return true
+    RenderEventRows(events, m.tomorrowRowTimes, m.tomorrowRowTitles, m.tomorrowEmpty, m.tomorrowHeader, "TOMORROW'S CALENDAR")
+    total = events.Count() + overflow
+    if total > m.tomorrowRowTimes.Count()
+        m.tomorrowHeader.text = "TOMORROW'S CALENDAR  +" + (total - m.tomorrowRowTimes.Count()).ToStr() + " MORE"
+    end if
+end sub
+
+sub RenderEventRows(events as dynamic, times as object, titles as object, emptyLabel as object, header as object, headerText as string)
+    if events = invalid then events = []
+    count = events.Count()
+    maxRows = times.Count()
+    for i = 0 to maxRows - 1
+        visible = i < count
+        times[i].visible = visible
+        titles[i].visible = visible
+        if visible
+            event = events[i]
+            times[i].text = HomeEventTime(event)
+            titles[i].text = event.title.ToStr()
+        end if
+    end for
+    emptyLabel.visible = (count = 0)
+    header.text = headerText
+    if count > maxRows then header.text = headerText + "  +" + (count - maxRows).ToStr() + " MORE"
+end sub
+
+function HomeEventTime(event as object) as string
+    if event.all_day = true then return "All day"
+    value = event.start.ToStr()
+    if Len(value) >= 16 then return Mid(value, 12, 5)
+    return ""
 end function
 
 sub buildMealRows()
@@ -498,7 +381,11 @@ sub UpdateClimate()
         else if st.attributes <> invalid and st.attributes.current_temperature <> invalid
             temp = st.attributes.current_temperature.ToStr()
         end if
-        m.outsideValue.text = CleanTemperature(temp)
+        unit = ""
+        if st.attributes <> invalid and st.attributes.temperature_unit <> invalid
+            unit = st.attributes.temperature_unit.ToStr()
+        end if
+        m.outsideValue.text = CleanTemperatureWithUnit(temp, unit)
         m.outsideIcon.uri = WeatherIconUri(st.state.ToStr())
         m.outsideName.text = "Outside"
         m.outsideCondition.text = TitleCase(st.state.ToStr())
@@ -543,6 +430,19 @@ function CleanTemperature(value as string) as string
         value = Left(value, Len(value) - 2)
     end if
     return value + Chr(176)
+end function
+
+function CleanTemperatureWithUnit(value as string, unit as string) as string
+    if value = "" or value = "unknown" or value = "unavailable" then return "--"
+    ' Drop a trailing "0" in whole numbers coming from floats (e.g. "21.0")
+    if Len(value) > 2 and Right(value, 2) = ".0"
+        value = Left(value, Len(value) - 2)
+    end if
+    if unit = "" then return value + Chr(176)
+    ' Home Assistant weather units already include the degree symbol (°F/°C),
+    ' but some integrations report a bare F or C.
+    if Left(unit, 1) <> Chr(176) then unit = Chr(176) + unit
+    return value + unit
 end function
 
 function TitleCase(s as string) as string
@@ -621,12 +521,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
     m.top.activity = key
     if key = "timeout"
-        if m.agendaOpen then CloseAgenda()
         if m.mealsOpen then CloseMeals()
         SetFocusIndex(0)
         return true
     end if
-    if m.agendaOpen then return HandleAgendaKey(key)
     if m.mealsOpen then return HandleMealKey(key)
     if key = "right"
         if m.focusIndex = m.rings.Count() - 1
@@ -643,7 +541,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
         end if
         return true
     else if key = "OK" and m.focusIndex = 0
-        OpenAgenda()
+        m.top.tabRequest = "week"
         return true
     else if key = "OK" and m.focusIndex = 1
         OpenMeals()

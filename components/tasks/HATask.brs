@@ -1,7 +1,7 @@
 ' HATask: background Task that talks to Home Assistant.
 ' - Starts device-initiated pairing and stores the approved device credential
 ' - Reads the allowlisted Family Dashboard API and sends dashboard actions
-' - Keeps compatibility with legacy pairing codes and full HA tokens
+' - Uses only device-initiated approval and device credentials
 '
 ' Publishes results through interface fields observed by MainScene.
 
@@ -26,10 +26,6 @@ sub executeTask()
     if m.token = ""
         m.dashboardMode = true
         conn = RequestAndWaitForPairing()
-    else if Len(m.token) <= 16
-        ' Upgrade channels paired with the old typed short-code flow.
-        m.dashboardMode = true
-        conn = FetchLegacyData()
     else if Len(m.token) = 64
         m.dashboardMode = true
         conn = FetchDeviceData()
@@ -241,22 +237,6 @@ sub ProcessPendingCommand()
     }
     if ok then FetchDeviceData()
 end sub
-
-function FetchLegacyData() as string
-    resp = HttpGetPublic("/api/roku_dashboard/" + UrlEscape(UCase(m.token)))
-    if resp.code = 401 then return "auth_error"
-    if resp.code < 200 or resp.code >= 300 then return "network_error"
-    data = ParseJson(resp.body)
-    if not IsAssociativeArray(data) or data.ok <> true then return "network_error"
-
-    if data.device_token <> invalid and data.device_token <> ""
-        m.token = UCase(data.device_token.ToStr())
-        SaveDeviceCredential()
-        print "HA TASK: pairing upgraded to secure device credential"
-    end if
-
-    return ApplyDashboardData(data)
-end function
 
 function FetchDeviceData() as string
     resp = HttpGet("/api/family_dashboard/device")

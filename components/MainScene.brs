@@ -575,6 +575,6 @@ sub onConnectionStatus()
     else if status = "pairing_denied"
         showSetup("Pairing was denied. Select START PAIRING to try again.", m.haTask.lastConfig)
     else if status = "pairing_expired"
-        showSetup("The pairing code expired. Select START PAIRING to get a new code.", m.haTask.lastConfig)
+        showSetup("The approval request expired. Select START PAIRING to send a new request.", m.haTask.lastConfig)
     end if
 end sub

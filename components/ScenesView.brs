@@ -14,7 +14,7 @@ sub init()
         panel = m.grid.CreateChild("Rectangle")
         panel.translation = [x + 7, y + 7] : panel.width = 536 : panel.height = 161 : panel.color = "0x241A10F2"
         name = m.grid.CreateChild("Label")
-        name.translation = [x + 28, y + 48] : name.width = 490 : name.height = 62 : name.horizAlign = "center"
+        name.translation = [x + 28, y + 28] : name.width = 490 : name.height = 102 : name.horizAlign = "center" : name.vertAlign = "center" : name.font = "font:LargeSystemFont"
         m.cards.Push({ focus: focus, panel: panel, name: name })
     end for
 end sub

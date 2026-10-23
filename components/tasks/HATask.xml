@@ -14,6 +14,7 @@
     <field id="monthCalendar" type="assocarray" alwaysNotify="true" />
     <field id="calendarSchedule" type="assocarray" alwaysNotify="true" />
     <field id="weatherData" type="assocarray" alwaysNotify="true" />
+    <field id="secondaryWeatherData" type="assocarray" alwaysNotify="true" />
     <field id="backgroundData" type="assocarray" alwaysNotify="true" />
     <field id="tabsData" type="assocarray" alwaysNotify="true" />
     <field id="lightsData" type="array" alwaysNotify="true" />

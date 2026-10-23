@@ -10,17 +10,19 @@ sub init()
     m.pressure = m.top.FindNode("currentPressure")
     m.visibility = m.top.FindNode("currentVisibility")
     m.forecastHeader = m.top.FindNode("forecastHeader")
+    m.secondaryForecastHeader = m.top.FindNode("secondaryForecastHeader")
+    m.secondaryData = invalid
     m.rows = []
     buildForecastRows()
 end sub
 
 sub buildForecastRows()
     group = m.top.FindNode("forecastRows")
-    for i = 0 to 7
+    for i = 0 to 9
         col = i MOD 5
         cardRow = Int(i / 5)
         x = col * 218
-        y = cardRow * 330
+        y = cardRow * 365
         bg = group.CreateChild("Rectangle")
         bg.width = 202
         bg.height = 310
@@ -83,8 +85,31 @@ sub onWeatherData()
 
     forecast = data.forecast
     if forecast = invalid then forecast = []
-    for i = 0 to 7
-        visible = i < forecast.Count()
+    renderForecast(data.forecast, 0, valueOr(data.forecast_type, "daily"))
+    secondary = m.secondaryData
+    hasSecondary = secondary <> invalid and secondary.enabled <> false and secondary.forecast <> invalid and secondary.forecast.Count() > 0
+    m.secondaryForecastHeader.visible = hasSecondary
+    if hasSecondary then m.secondaryForecastHeader.text = UCase(valueOr(secondary.name, "SECOND LOCATION")) + " FORECAST"
+    if not hasSecondary then
+        for i = 5 to 9
+            HideForecastRow(m.rows[i])
+        end for
+    else
+        renderForecast(secondary.forecast, 5, valueOr(secondary.forecast_type, "daily"))
+    end if
+end sub
+
+sub onSecondaryWeatherData()
+    value = m.top.secondaryWeatherData
+    if value = invalid or value.enabled = false then m.secondaryData = invalid else m.secondaryData = value
+    if m.top.weatherData <> invalid then onWeatherData()
+end sub
+
+sub renderForecast(forecast as dynamic, startIndex as integer, forecastType as string)
+    if forecast = invalid then forecast = []
+    for offset = 0 to 4
+        i = startIndex + offset
+        visible = offset < forecast.Count()
         row = m.rows[i]
         row.bg.visible = visible
         row.period.visible = visible
@@ -93,11 +118,11 @@ sub onWeatherData()
         row.temperature.visible = visible
         row.rain.visible = visible
         if visible
-            item = forecast[i]
+            item = forecast[offset]
             if item.label <> invalid and item.label <> ""
                 row.period.text = item.label.ToStr()
             else
-                row.period.text = forecastTime(valueOr(item.datetime, ""), data.forecast_type)
+                row.period.text = forecastTime(valueOr(item.datetime, ""), forecastType)
             end if
             row.condition.text = humanCondition(valueOr(item.condition, "Unknown"))
             row.icon.uri = forecastWeatherIconUri(valueOr(item.condition, "unknown"))
@@ -112,6 +137,15 @@ sub onWeatherData()
             end if
         end if
     end for
+end sub
+
+sub HideForecastRow(row as object)
+    row.bg.visible = false
+    row.period.visible = false
+    row.condition.visible = false
+    row.icon.visible = false
+    row.temperature.visible = false
+    row.rain.visible = false
 end sub
 
 function valueOr(value as dynamic, fallback as string) as string

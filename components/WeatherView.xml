@@ -2,6 +2,7 @@
 <component name="WeatherView" extends="Group">
   <interface>
     <field id="weatherData" type="assocarray" onChange="onWeatherData" />
+    <field id="secondaryWeatherData" type="assocarray" onChange="onSecondaryWeatherData" />
     <field id="tabRequest" type="string" alwaysNotify="true" />
     <field id="keyInput" type="string" alwaysNotify="true" onChange="onKeyInput" />
     <field id="activity" type="string" alwaysNotify="true" />
@@ -25,6 +26,7 @@
 
     <Rectangle translation="[650,170]" width="1190" height="830" color="0x241A10F2" />
     <Label id="forecastHeader" text="FORECAST" width="1110" height="58" color="0xE0A85EFF" translation="[690,205]" font="font:MediumSystemFont" />
+    <Label id="secondaryForecastHeader" text="" width="1110" height="48" color="0xE0A85EFF" translation="[690,585]" font="font:MediumSystemFont" visible="false" />
     <Group id="forecastRows" translation="[690,275]" />
     <Label text="Press LEFT to return Home" width="700" height="42" color="0xC0B49CFF" translation="[1100,950]" horizAlign="right" />
   </children>

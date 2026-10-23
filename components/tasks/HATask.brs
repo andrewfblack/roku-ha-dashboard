@@ -310,6 +310,11 @@ function ApplyDashboardData(data as object) as string
     if IsAssociativeArray(data.weather)
         m.top.weatherData = data.weather
     end if
+    if IsAssociativeArray(data.secondary_weather)
+        m.top.secondaryWeatherData = data.secondary_weather
+    else
+        m.top.secondaryWeatherData = {}
+    end if
     if data.background <> invalid
         bgMode = data.background.ToStr()
         bgUrl = ""

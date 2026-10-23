@@ -11,31 +11,39 @@ end sub
 
 sub buildCards()
     for i = 0 to 11
-        col = i MOD 3
-        row = Int(i / 3)
-        x = col * 590
-        y = row * 205
+        col = i MOD 4
+        row = Int(i / 4)
+        x = col * 340
+        y = row * 285
         focus = m.grid.CreateChild("Rectangle")
         focus.translation = [x, y]
-        focus.width = 550
-        focus.height = 175
+        focus.width = 300
+        focus.height = 300
         focus.color = "0xF2A24BFF"
         focus.visible = false
         panel = m.grid.CreateChild("Rectangle")
         panel.translation = [x + 7, y + 7]
-        panel.width = 536
-        panel.height = 161
+        panel.width = 286
+        panel.height = 286
         panel.color = "0x241A10F2"
         name = m.grid.CreateChild("Label")
-        name.translation = [x + 28, y + 25]
-        name.width = 490
+        name.translation = [x + 18, y + 20]
+        name.width = 264
         name.height = 55
+        name.horizAlign = "center"
+        name.font = "font:LargeSystemFont"
+        icon = m.grid.CreateChild("Poster")
+        icon.translation = [x + 102, y + 88]
+        icon.width = 96
+        icon.height = 96
+        icon.loadDisplayMode = "scaleToFit"
         state = m.grid.CreateChild("Label")
-        state.translation = [x + 28, y + 92]
-        state.width = 490
+        state.translation = [x + 18, y + 220]
+        state.width = 264
         state.height = 48
+        state.horizAlign = "center"
         state.color = "0xC0B49CFF"
-        m.cards.Push({ focus: focus, panel: panel, name: name, state: state })
+        m.cards.Push({ focus: focus, panel: panel, name: name, icon: icon, state: state })
     end for
 end sub
 
@@ -50,11 +58,13 @@ sub onItems()
         visible = i < m.items.Count()
         card.panel.visible = visible
         card.name.visible = visible
+        card.icon.visible = visible
         card.state.visible = visible
         card.focus.visible = visible and i = m.focusIndex
         if visible
             item = m.items[i]
             card.name.text = item.name
+            card.icon.uri = LightIconUri(item)
             detail = UCase(item.state)
             if item.brightness <> invalid
                 detail = detail + "   " + Int(item.brightness * 100 / 255).ToStr() + "%"
@@ -63,6 +73,13 @@ sub onItems()
         end if
     end for
 end sub
+
+function LightIconUri(item as object) as string
+    domain = "light"
+    if item.domain <> invalid then domain = LCase(item.domain.ToStr())
+    if domain = "switch" then return "pkg:/images/mdi/light-switch.png"
+    return "pkg:/images/mdi/lightbulb-on.png"
+end function
 
 sub renderFocus()
     for i = 0 to m.cards.Count() - 1
@@ -81,7 +98,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
     m.top.activity = key
     count = m.items.Count()
     if key = "left"
-        if count = 0 or m.focusIndex MOD 3 = 0
+        if count = 0 or m.focusIndex MOD 4 = 0
             m.top.tabRequest = "previous"
         else
             m.focusIndex = m.focusIndex - 1
@@ -89,26 +106,26 @@ function onKeyEvent(key as string, press as boolean) as boolean
         end if
         return true
     else if key = "right"
-        if count = 0 or m.focusIndex + 1 >= count or m.focusIndex MOD 3 = 2
+        if count = 0 or m.focusIndex + 1 >= count or m.focusIndex MOD 4 = 3
             m.top.tabRequest = "next"
         else
             m.focusIndex = m.focusIndex + 1
             renderFocus()
         end if
         return true
-    else if key = "up" and m.focusIndex >= 3
-        m.focusIndex = m.focusIndex - 3
+    else if key = "up" and m.focusIndex >= 4
+        m.focusIndex = m.focusIndex - 4
         renderFocus()
         return true
-    else if key = "down" and m.focusIndex + 3 < count
-        m.focusIndex = m.focusIndex + 3
+    else if key = "down" and m.focusIndex + 4 < count
+        m.focusIndex = m.focusIndex + 4
         renderFocus()
         return true
     else if key = "OK" and count > 0
         m.status.text = "Sending..."
         m.top.commandRequest = { action: "light_toggle", entity_id: m.items[m.focusIndex].entity_id }
         return true
-    else if key = "play" and count > 0
+    else if key = "play" and count > 0 and (m.items[m.focusIndex].domain = invalid or m.items[m.focusIndex].domain = "light")
         item = m.items[m.focusIndex]
         pct = 0
         if item.brightness <> invalid then pct = Int(item.brightness * 100 / 255)

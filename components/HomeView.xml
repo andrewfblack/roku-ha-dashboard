@@ -103,11 +103,11 @@
 
     <Label id="outsideName" text="Outside" horizAlign="center" width="340" height="48" color="0xE0A85EFF" translation="[1460,600]" font="font:MediumSystemFont">
     </Label>
-    <Poster id="outsideIcon" width="112" height="112" translation="[1574,660]" loadDisplayMode="scaleToFit" uri="pkg:/images/weather/home/unknown.png" visible="false" />
-    <Label id="outsideValue" text="--" horizAlign="center" width="340" height="90" translation="[1460,790]" font="font:LargestSystemFont">
+    <Poster id="outsideIcon" width="72" height="72" translation="[1594,650]" loadDisplayMode="scaleToFit" uri="pkg:/images/weather/home/unknown.png" />
+    <Label id="outsideValue" text="--" horizAlign="center" width="340" height="100" translation="[1460,730]" font="font:LargestSystemFont">
     </Label>
-    <Label id="outsideCondition" text="Unknown" horizAlign="center" width="340" height="42" color="0xC0B49CFF" translation="[1460,875]" />
-    <Label id="outsideDetail" text="" horizAlign="center" width="340" height="38" color="0xC0B49CFF" translation="[1460,925]">
+    <Label id="outsideCondition" text="Unknown" horizAlign="center" width="340" height="42" color="0xC0B49CFF" translation="[1460,875]" visible="false" />
+    <Label id="outsideDetail" text="" horizAlign="center" width="340" height="38" color="0xC0B49CFF" translation="[1460,850]">
     </Label>
 
     <Group id="weeklyMeals" visible="false">

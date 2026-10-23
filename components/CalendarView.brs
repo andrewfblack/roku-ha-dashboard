@@ -6,6 +6,7 @@ sub init()
     m.monthGrid = m.top.FindNode("monthGrid")
     m.empty = m.top.FindNode("empty")
     m.calendarHint = m.top.FindNode("calendarHint")
+    m.monthFocus = m.top.FindNode("monthFocus")
     m.monthDayLabels = []
     m.eventCircles = []
     m.todayOuter = []
@@ -61,40 +62,37 @@ sub buildMonthGrid()
         x = (index MOD 7) * cellWidth + 73
         y = 52 + Int(index / 7) * 96 + 6
 
-        eventCircle = m.monthGrid.CreateChild("Rectangle")
+        eventCircle = m.monthGrid.CreateChild("Poster")
         eventCircle.width = 72
         eventCircle.height = 72
-        eventCircle.cornerRadius = 36
+        eventCircle.loadDisplayMode = "scaleToFit"
+        eventCircle.uri = "pkg:/images/calendar/event-circle.png"
         eventCircle.translation = [x, y]
         eventCircle.visible = false
         eventCircle.color = m.eventColor
+        eventCircle.blendColor = m.eventColor
         m.eventCircles.Push(eventCircle)
 
-        todayOuter = m.monthGrid.CreateChild("Rectangle")
+        todayOuter = m.monthGrid.CreateChild("Poster")
         todayOuter.width = 82
         todayOuter.height = 82
-        todayOuter.cornerRadius = 41
+        todayOuter.loadDisplayMode = "scaleToFit"
+        todayOuter.uri = "pkg:/images/calendar/today-ring.png"
         todayOuter.translation = [x - 5, y - 5]
         todayOuter.visible = false
         todayOuter.color = m.todayColor
+        todayOuter.blendColor = m.todayColor
         m.todayOuter.Push(todayOuter)
 
-        todayInner = m.monthGrid.CreateChild("Rectangle")
-        todayInner.width = 72
-        todayInner.height = 72
-        todayInner.cornerRadius = 36
-        todayInner.translation = [x, y]
-        todayInner.visible = false
-        todayInner.color = "0x241A10FF"
-        m.todayInner.Push(todayInner)
-
-        focusCircle = m.monthGrid.CreateChild("Rectangle")
+        focusCircle = m.monthGrid.CreateChild("Poster")
         focusCircle.width = 92
         focusCircle.height = 92
-        focusCircle.cornerRadius = 46
+        focusCircle.loadDisplayMode = "scaleToFit"
+        focusCircle.uri = "pkg:/images/calendar/today-ring.png"
         focusCircle.translation = [x - 10, y - 10]
         focusCircle.visible = false
         focusCircle.color = m.focusColor
+        focusCircle.blendColor = m.focusColor
         m.focusCircles.Push(focusCircle)
 
         label = m.monthGrid.CreateChild("Label")
@@ -114,14 +112,15 @@ sub onThemeData()
     if theme = invalid then return
     if theme.item_header_text <> invalid then m.eventColor = ThemeColor(theme.item_header_text, 72)
     if theme.selected_border <> invalid then m.todayColor = ThemeColor(theme.selected_border, 100) : m.focusColor = ThemeColor(theme.selected_border, 100)
+    m.monthFocus.color = m.focusColor
     for each circle in m.eventCircles
-        circle.color = m.eventColor
+        circle.blendColor = m.eventColor
     end for
     for each circle in m.todayOuter
-        circle.color = m.todayColor
+        circle.blendColor = m.todayColor
     end for
     for each circle in m.focusCircles
-        circle.color = m.focusColor
+        circle.blendColor = m.focusColor
     end for
 end sub
 
@@ -176,17 +175,16 @@ sub RenderMonth()
         hasEvents = valid and ArrayContainsNumber(eventDays, day)
         m.eventCircles[index].visible = hasEvents
         m.todayOuter[index].visible = valid and day = today
-        m.todayInner[index].visible = valid and day = today
         m.focusCircles[index].visible = valid and m.calendarFocused and index = m.selectedIndex
         if valid
             text = day.ToStr()
             label.text = text
-            if hasEvents then m.todayInner[index].color = m.eventColor else m.todayInner[index].color = "0x241A10FF"
             if day = today then label.color = m.todayColor else label.color = "0xFFFFFFFF"
         else
             label.text = ""
         end if
     end for
+    m.monthFocus.visible = m.calendarFocused
     m.status.text = "DOWN: select calendar"
     if m.calendarFocused then m.status.text = "Selected day " + SelectedDayText()
 end sub

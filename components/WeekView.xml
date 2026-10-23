@@ -9,7 +9,7 @@
   <script type="text/brightscript" uri="pkg:/components/WeekView.brs" />
   <children>
     <Rectangle translation="[50,20]" width="1820" height="112" color="0x241A10F2" />
-    <TabIcons selected="calendar" translation="[70,30]" />
+    <TabIcons id="tabIcons" selected="calendar" translation="[70,30]" />
     <Label text="WEEK CALENDAR" width="500" height="72" translation="[720,43]" font="font:LargeSystemFont" />
     <Label id="status" text="Rolling family schedule" width="560" height="48" translation="[1280,55]" horizAlign="right" color="0xC0B49CFF" />
     <Group id="columns" translation="[80,150]" />

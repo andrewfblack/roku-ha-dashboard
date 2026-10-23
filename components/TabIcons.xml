@@ -2,6 +2,7 @@
 <component name="TabIcons" extends="Group">
   <interface>
     <field id="selected" type="string" onChange="renderTabs" />
+    <field id="focusTab" type="string" onChange="renderTabs" />
   </interface>
   <script type="text/brightscript" uri="pkg:/components/TabIcons.brs" />
 </component>

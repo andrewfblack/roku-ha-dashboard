@@ -36,7 +36,8 @@ sub renderTabs()
     if m.cards = invalid then return
     for i = 0 to m.names.Count() - 1
         selected = m.names[i] = m.top.selected
-        m.cards[i].focus.visible = selected
+        focused = m.top.focusTab <> invalid and m.top.focusTab <> "" and m.names[i] = m.top.focusTab
+        m.cards[i].focus.visible = focused or (not focused and selected)
         if selected then m.cards[i].label.color = "0xFFF4D6FF" else m.cards[i].label.color = "0xD8CBB9FF"
     end for
 end sub

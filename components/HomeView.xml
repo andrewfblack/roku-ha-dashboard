@@ -23,7 +23,7 @@
   <script type="text/brightscript" uri="pkg:/components/HomeView.brs" />
   <children>
     <Rectangle translation="[50,20]" width="1820" height="112" color="0x241A10F2" />
-    <TabIcons selected="home" translation="[70,30]" />
+    <TabIcons id="tabIcons" selected="home" translation="[70,30]" />
     <Label id="titleLabel" text="FAMILY DASHBOARD" width="500" height="72" translation="[720,43]" font="font:LargeSystemFont" />
     <Label id="dateLabel" text="" horizAlign="right" width="560" height="52" translation="[1270,50]" font="font:MediumSystemFont">
     </Label>

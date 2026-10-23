@@ -24,6 +24,7 @@ sub init()
     }
     m.tabOrder = ["home", "calendar", "weather", "lights", "scenes", "climate"]
     m.currentTab = "home"
+    m.pendingTab = ""
     m.tabsData = {}
     m.commandSeq = 0
     m.focusSeq = 0
@@ -357,9 +358,11 @@ sub navigateTab(direction as string)
         showTab("calendar")
         return
     end if
+    currentName = m.currentTab
+    if m.pendingTab <> "" then currentName = m.pendingTab
     currentIndex = 0
     for i = 0 to m.tabOrder.Count() - 1
-        if m.tabOrder[i] = m.currentTab then currentIndex = i
+        if m.tabOrder[i] = currentName then currentIndex = i
     end for
     stepValue = 1
     if direction = "previous" then stepValue = -1
@@ -367,10 +370,29 @@ sub navigateTab(direction as string)
         currentIndex = (currentIndex + stepValue + m.tabOrder.Count()) MOD m.tabOrder.Count()
         candidate = m.tabOrder[currentIndex]
         if tabEnabled(candidate)
-            showTab(candidate)
+            m.pendingTab = candidate
+            SetTabFocus(candidate)
             return
         end if
     end for
+end sub
+
+function TabIconName(name as string) as string
+    if name = "week" then return "calendar"
+    return name
+end function
+
+sub SetTabFocus(name as string)
+    iconName = TabIconName(name)
+    for each key in m.views
+        icons = m.views[key].FindNode("tabIcons")
+        if icons <> invalid then icons.focusTab = iconName
+    end for
+end sub
+
+sub ClearTabFocus()
+    m.pendingTab = ""
+    SetTabFocus(m.currentTab)
 end sub
 
 function tabEnabled(name as string) as boolean
@@ -385,9 +407,11 @@ sub showTab(name as string)
     view = m.views[name]
     if view = invalid then return
     m.currentTab = name
+    m.pendingTab = ""
     for each key in m.views
         m.views[key].visible = (key = name)
     end for
+    SetTabFocus(name)
     m.top.SetFocus(true)
     scheduleFocusRetry()
 end sub
@@ -405,6 +429,21 @@ function onKeyEvent(key as string, press as boolean) as boolean
     m.inactivityTimer.control = "start"
     if m.setupView.visible then return false
     if key = "back" and m.currentTab = "home" then return false
+    if m.pendingTab <> ""
+        if key = "OK"
+            showTab(m.pendingTab)
+            return true
+        else if key = "back"
+            ClearTabFocus()
+            return true
+        else if key = "left" or key = "rewind"
+            navigateTab("previous")
+            return true
+        else if key = "right" or key = "fastforward"
+            navigateTab("next")
+            return true
+        end if
+    end if
     if m.currentTab = "week"
         if key = "rewind"
             showTab("home")

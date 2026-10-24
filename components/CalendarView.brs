@@ -277,10 +277,8 @@ function onKeyEvent(key as string, press as boolean) as boolean
             RenderMonth()
             return true
         else if key = "left" or key = "back"
-            m.top.tabRequest = "previous"
             return true
         else if key = "right"
-            m.top.tabRequest = "next"
             return true
         end if
         return false
@@ -292,10 +290,16 @@ function onKeyEvent(key as string, press as boolean) as boolean
         MoveSelection(7)
         return true
     else if key = "left"
-        if not MoveSelection(-1) then m.top.tabRequest = "previous"
+        if not MoveSelection(-1)
+            m.selectedIndex = m.monthData.first_weekday + m.monthData.days_in_month - 1
+            RenderMonth()
+        end if
         return true
     else if key = "right"
-        if not MoveSelection(1) then m.top.tabRequest = "next"
+        if not MoveSelection(1)
+            m.selectedIndex = m.monthData.first_weekday
+            RenderMonth()
+        end if
         return true
     else if key = "OK"
         OpenDayPopup()

@@ -98,20 +98,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
     m.top.activity = key
     count = m.items.Count()
     if key = "left"
-        if count = 0 or m.focusIndex MOD 4 = 0
-            m.top.tabRequest = "previous"
-        else
-            m.focusIndex = m.focusIndex - 1
-            renderFocus()
-        end if
+        if count > 0 then m.focusIndex = (m.focusIndex - 1 + count) MOD count : renderFocus()
         return true
     else if key = "right"
-        if count = 0 or m.focusIndex + 1 >= count or m.focusIndex MOD 4 = 3
-            m.top.tabRequest = "next"
-        else
-            m.focusIndex = m.focusIndex + 1
-            renderFocus()
-        end if
+        if count > 0 then m.focusIndex = (m.focusIndex + 1) MOD count : renderFocus()
         return true
     else if key = "up" and m.focusIndex >= 4
         m.focusIndex = m.focusIndex - 4
@@ -138,7 +128,6 @@ function onKeyEvent(key as string, press as boolean) as boolean
         m.top.commandRequest = { action: "light_brightness", entity_id: item.entity_id, value: nextPct }
         return true
     else if key = "back"
-        m.top.tabRequest = "previous"
         return true
     end if
     return false

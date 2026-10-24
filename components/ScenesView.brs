@@ -48,10 +48,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
     m.top.activity = key
     count = m.items.Count()
     if key = "left"
-        if count = 0 or m.focusIndex MOD 3 = 0 then m.top.tabRequest = "previous" else m.focusIndex = m.focusIndex - 1 : renderFocus()
+        if count > 0 then m.focusIndex = (m.focusIndex - 1 + count) MOD count : renderFocus()
         return true
     else if key = "right"
-        if count = 0 or m.focusIndex + 1 >= count or m.focusIndex MOD 3 = 2 then m.top.tabRequest = "next" else m.focusIndex = m.focusIndex + 1 : renderFocus()
+        if count > 0 then m.focusIndex = (m.focusIndex + 1) MOD count : renderFocus()
         return true
     else if key = "up" and m.focusIndex >= 3
         m.focusIndex = m.focusIndex - 3 : renderFocus() : return true
@@ -62,7 +62,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
         m.top.commandRequest = { action: "scene_activate", entity_id: m.items[m.focusIndex].entity_id }
         return true
     else if key = "back"
-        m.top.tabRequest = "previous" : return true
+        return true
     end if
     return false
 end function

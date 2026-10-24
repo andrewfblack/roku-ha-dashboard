@@ -563,18 +563,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
     end if
     if m.mealsOpen then return HandleMealKey(key)
     if key = "right"
-        if m.focusIndex = m.rings.Count() - 1
-            m.top.tabRequest = "next"
-        else
-            SetFocusIndex(m.focusIndex + 1)
-        end if
+        SetFocusIndex((m.focusIndex + 1) MOD m.rings.Count())
         return true
     else if key = "left"
-        if m.focusIndex = 0
-            m.top.tabRequest = "previous"
-        else
-            SetFocusIndex(m.focusIndex - 1)
-        end if
+        SetFocusIndex((m.focusIndex - 1 + m.rings.Count()) MOD m.rings.Count())
         return true
     else if key = "OK" and m.focusIndex = 0
         m.top.tabRequest = "week"

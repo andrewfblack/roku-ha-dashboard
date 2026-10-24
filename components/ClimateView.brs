@@ -106,10 +106,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
     m.top.activity = key
     count = m.items.Count()
     if key = "left"
-        if m.focusIndex > 0 then m.focusIndex = m.focusIndex - 1 : renderClimate() else m.top.tabRequest = "previous"
+        if count > 0 then m.focusIndex = (m.focusIndex - 1 + count) MOD count : renderClimate()
         return true
     else if key = "right"
-        if m.focusIndex + 1 < count then m.focusIndex = m.focusIndex + 1 : renderClimate() else m.top.tabRequest = "next"
+        if count > 0 then m.focusIndex = (m.focusIndex + 1) MOD count : renderClimate()
         return true
     else if (key = "up" or key = "down") and count > 0
         item = m.items[m.focusIndex]
@@ -134,7 +134,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
         m.top.commandRequest = { action: "climate_mode", entity_id: item.entity_id, value: modes[nextIndex] }
         return true
     else if key = "back"
-        m.top.tabRequest = "previous" : return true
+        return true
     end if
     return false
 end function

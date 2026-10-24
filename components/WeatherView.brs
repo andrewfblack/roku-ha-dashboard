@@ -219,11 +219,7 @@ end function
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
     m.top.activity = key
-    if key = "left" or key = "back"
-        m.top.tabRequest = "previous"
-        return true
-    else if key = "right"
-        m.top.tabRequest = "next"
+    if key = "left" or key = "right" or key = "back"
         return true
     end if
     return false

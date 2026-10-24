@@ -221,10 +221,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
     end if
     count = m.days.Count()
     if key = "left"
-        if m.dayIndex = 0 then m.top.tabRequest = "home" else m.dayIndex = m.dayIndex - 1 : m.eventIndex = 0 : RenderSchedule()
+        if count > 0 then m.dayIndex = (m.dayIndex - 1 + count) MOD count : m.eventIndex = 0 : RenderSchedule()
         return true
     else if key = "right"
-        if count = 0 or m.dayIndex + 1 >= count then m.top.tabRequest = "next" else m.dayIndex = m.dayIndex + 1 : m.eventIndex = 0 : RenderSchedule()
+        if count > 0 then m.dayIndex = (m.dayIndex + 1) MOD count : m.eventIndex = 0 : RenderSchedule()
         return true
     else if key = "up" and m.eventIndex > 0
         m.eventIndex = m.eventIndex - 1 : RenderSchedule() : return true
@@ -235,7 +235,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
     else if key = "OK"
         OpenDetail() : return true
     else if key = "back"
-        m.top.tabRequest = "home" : return true
+        return true
     end if
     return false
 end function

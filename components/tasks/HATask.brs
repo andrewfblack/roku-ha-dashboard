@@ -301,7 +301,7 @@ function ApplyDashboardData(data as object) as string
         if bgMode = "uploaded" and data.has_uploaded_background = true
             version = ""
             if data.background_version <> invalid then version = data.background_version.ToStr()
-            bgUrl = m.url + "/api/family_dashboard/background?v=" + version
+            bgUrl = m.url + "/api/family_dashboard/device/background?v=" + version
         else if bgMode = "custom_url" and data.background_url <> invalid and data.background_url <> ""
             bgUrl = data.background_url.ToStr()
             if Left(bgUrl, 1) = "/" then bgUrl = m.url + bgUrl

@@ -11,7 +11,7 @@
   <children>
     <Rectangle translation="[50,20]" width="1820" height="112" color="0x241A10F2" />
     <TabIcons id="tabIcons" selected="weather" translation="[70,30]" />
-    <Label text="WEATHER" width="450" height="72" translation="[720,43]" font="font:LargeSystemFont" />
+    <Label text="WEATHER" width="450" height="72" translation="[800,43]" font="font:LargeSystemFont" />
     <Label id="status" text="Loading weather from Home Assistant..." width="560" height="50" translation="[1280,62]" horizAlign="right" />
 
     <Rectangle translation="[80,170]" width="540" height="830" color="0x241A10F2" />

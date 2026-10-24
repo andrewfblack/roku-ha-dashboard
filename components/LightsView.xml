@@ -12,7 +12,7 @@
   <children>
     <Rectangle translation="[50,20]" width="1820" height="112" color="0x241A10F2" />
     <TabIcons id="tabIcons" selected="lights" translation="[70,30]" />
-    <Label text="LIGHTS" width="400" height="72" translation="[720,43]" font="font:LargeSystemFont" />
+    <Label text="LIGHTS" width="450" height="72" translation="[800,43]" font="font:LargeSystemFont" />
     <Label id="status" text="OK: toggle    PLAY/PAUSE: brightness" width="650" height="52" translation="[1190,62]" horizAlign="right" />
     <Group id="grid" translation="[80,160]" />
     <Label id="empty" text="No lights selected. Configure Roku Dashboard in Home Assistant." width="1760" height="80" translation="[80,260]" visible="false" />

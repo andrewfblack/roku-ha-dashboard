@@ -11,7 +11,7 @@
   <children>
     <Rectangle translation="[50,20]" width="1820" height="112" color="0x241A10F2" />
     <TabIcons id="tabIcons" selected="calendar" translation="[70,30]" />
-    <Label text="FAMILY CALENDAR" width="500" height="72" translation="[720,43]" font="font:LargeSystemFont" />
+    <Label text="FAMILY CALENDAR" width="450" height="72" translation="[800,43]" font="font:LargeSystemFont" />
     <Label id="status" text="Month overview" width="560" height="48" translation="[1280,55]" horizAlign="right" color="0xC0B49CFF" />
 
     <Rectangle id="monthFocus" translation="[72,162]" width="1776" height="846" color="0xE5A84BFF" visible="false" />

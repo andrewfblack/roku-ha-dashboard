@@ -12,7 +12,7 @@
   <children>
     <Rectangle translation="[50,20]" width="1820" height="112" color="0x241A10F2" />
     <TabIcons id="tabIcons" selected="scenes" translation="[70,30]" />
-    <Label text="SCENES" width="400" height="72" translation="[720,43]" font="font:LargeSystemFont" />
+    <Label text="SCENES" width="450" height="72" translation="[800,43]" font="font:LargeSystemFont" />
     <Label id="status" text="Press OK to activate" width="600" height="52" translation="[1240,62]" horizAlign="right" />
     <Group id="grid" translation="[80,160]" />
     <Label id="empty" text="No scenes or scripts selected in Home Assistant." width="1760" height="80" translation="[80,260]" visible="false" />

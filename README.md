@@ -47,9 +47,9 @@ focus border, title, and background-image darkening.
 
 ### Pairing
 Install and configure the companion Family Dashboard HACS integration. The
-Roku creates its own 8-character pairing code and waits for approval in Home
-Assistant. Every Roku receives a separate revocable device credential; the TV
-never stores a Home Assistant long-lived access token.
+Roku creates a device-approval request and waits for approval in Home Assistant.
+Every Roku receives a separate revocable device credential; the TV never stores
+a Home Assistant long-lived access token.
 
 ### Meal plan sensor
 The channel reads the *state* of an entity you choose. Easiest option — a helper you can edit from the HA UI (even from your phone):
@@ -100,10 +100,9 @@ IPv4 network for the Family Dashboard integration. If it is found, select
 **START PAIRING**. Otherwise enter the HA URL (for example,
 `http://192.168.1.50:8123`) with Roku's native keyboard.
 
-The TV displays an 8-character code. Open the **Family Dashboard** panel in
-Home Assistant, choose **Pair a device**, and approve the Roku showing that
-code. The credential and URL are then saved on the Roku, so setup only happens
-once unless that device is revoked.
+Open the **Family Dashboard** panel in Home Assistant, choose **Pair a device**,
+and approve the pending Roku request. The credential and URL are then saved on
+the Roku, so setup only happens once unless that device is revoked.
 
 ## 3. Debugging
 

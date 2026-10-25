@@ -8,6 +8,7 @@
     <field id="weatherData" type="assocarray" onChange="onWeatherData" />
     <field id="todayEvents" type="array" onChange="onTodayEvents" />
     <field id="calendarSchedule" type="assocarray" onChange="onCalendarSchedule" />
+    <field id="nextHoliday" type="assocarray" onChange="onNextHoliday" />
     <field id="mealPlan" type="string" onChange="onMealPlan" />
     <field id="weeklyMealPlan" type="array" onChange="onWeeklyMealPlan" />
     <field id="dashboardTitle" type="string" onChange="onDashboardTitle" />
@@ -76,6 +77,9 @@
     <Label id="tomorrow3Title" text="" horizAlign="left" width="620" height="70" wrap="true" maxLines="2" translation="[330,873]">
     </Label>
     <Label id="tomorrowEmpty" text="No events tomorrow" horizAlign="left" width="820" height="60" color="0xC0B49CFF" translation="[110,645]">
+    </Label>
+    <Rectangle translation="[110,950]" width="820" height="2" color="0x806B50FF" />
+    <Label id="nextHoliday" text="" horizAlign="left" width="820" height="38" color="0xE0A85EFF" translation="[110,958]" font="font:SmallSystemFont">
     </Label>
 
     <!-- Meal panel -->

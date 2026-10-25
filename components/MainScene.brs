@@ -198,6 +198,7 @@ sub startDashboard(config as object)
     m.haTask.ObserveField("todayEvents", "onTodayEvents")
     m.haTask.ObserveField("monthCalendar", "onMonthCalendar")
     m.haTask.ObserveField("calendarSchedule", "onCalendarSchedule")
+    m.haTask.ObserveField("nextHoliday", "onNextHoliday")
     m.haTask.ObserveField("weatherData", "onWeatherData")
     m.haTask.ObserveField("backgroundData", "onBackgroundData")
     m.haTask.ObserveField("tabsData", "onTabsData")
@@ -278,6 +279,10 @@ end sub
 sub onCalendarSchedule()
     m.weekView.schedule = m.haTask.calendarSchedule
     m.homeView.calendarSchedule = m.haTask.calendarSchedule
+end sub
+
+sub onNextHoliday()
+    m.homeView.nextHoliday = m.haTask.nextHoliday
 end sub
 
 sub onWeatherData()

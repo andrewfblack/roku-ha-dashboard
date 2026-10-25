@@ -302,6 +302,7 @@ function ApplyDashboardData(data as object) as string
     if IsAssociativeArray(data.calendar_schedule)
         m.top.calendarSchedule = data.calendar_schedule
     end if
+    if IsAssociativeArray(data.next_holiday) then m.top.nextHoliday = data.next_holiday else m.top.nextHoliday = {}
     if IsAssociativeArray(data.weather)
         m.top.weatherData = data.weather
     end if

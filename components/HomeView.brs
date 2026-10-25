@@ -22,6 +22,7 @@ sub init()
     m.todayEmpty = m.top.FindNode("todayEmpty")
     m.tomorrowEmpty = m.top.FindNode("tomorrowEmpty")
     m.tomorrowHeader = m.top.FindNode("tomorrowHeader")
+    m.nextHoliday = m.top.FindNode("nextHoliday")
     m.calendarPanel = m.top.FindNode("calendarPanel")
     m.mealPanel = m.top.FindNode("mealPanel")
     m.climatePanel = m.top.FindNode("climatePanel")
@@ -97,6 +98,18 @@ sub onCalendarSchedule()
     RenderTomorrow()
 end sub
 
+sub onNextHoliday()
+    holiday = m.top.nextHoliday
+    if holiday = invalid or holiday.title = invalid
+        m.nextHoliday.text = ""
+        return
+    end if
+    value = holiday.start.ToStr()
+    dateText = value
+    if Len(value) >= 10 then dateText = Mid(value, 6, 2) + "/" + Mid(value, 9, 2)
+    m.nextHoliday.text = "NEXT HOLIDAY: " + holiday.title + "  " + dateText
+end sub
+
 sub onMealPlan()
     meal = m.top.mealPlan
     if meal = invalid or meal = "" or meal = "unknown" or meal = "unavailable"
@@ -161,6 +174,7 @@ sub onThemeData()
     end for
     m.todayEmpty.color = mutedColor
     m.tomorrowEmpty.color = mutedColor
+    m.nextHoliday.color = itemHeaderColor
 end sub
 
 function ThemeColor(value as dynamic, opacity as integer) as string

@@ -13,6 +13,7 @@
     <field id="todayEvents" type="array" alwaysNotify="true" />
     <field id="monthCalendar" type="assocarray" alwaysNotify="true" />
     <field id="calendarSchedule" type="assocarray" alwaysNotify="true" />
+    <field id="nextHoliday" type="assocarray" alwaysNotify="true" />
     <field id="weatherData" type="assocarray" alwaysNotify="true" />
     <field id="secondaryWeatherData" type="assocarray" alwaysNotify="true" />
     <field id="backgroundData" type="assocarray" alwaysNotify="true" />

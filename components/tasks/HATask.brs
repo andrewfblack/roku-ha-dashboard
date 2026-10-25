@@ -71,6 +71,21 @@ end sub
 
 ' ---------------- REST helpers ----------------
 
+function HttpGetToFile(path as string, dest as string) as integer
+    xfer = CreateObject("roUrlTransfer")
+    xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    xfer.InitClientCertificates()
+    xfer.RetainBodyOnError(true)
+    xfer.AddHeader("Authorization", "Bearer " + m.token)
+    xfer.SetUrl(m.url + path)
+    port = CreateObject("roMessagePort")
+    xfer.SetMessagePort(port)
+    if not xfer.AsyncGetToFile(dest) then return -1
+    msg = Wait(20000, port)
+    if msg = invalid or Type(msg) <> "roUrlEvent" then return -2
+    return msg.GetResponseCode()
+end function
+
 function HttpGet(path as string) as object
     xfer = CreateObject("roUrlTransfer")
     xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
@@ -301,7 +316,10 @@ function ApplyDashboardData(data as object) as string
         if bgMode = "uploaded" and data.has_uploaded_background = true
             version = ""
             if data.background_version <> invalid then version = data.background_version.ToStr()
-            bgUrl = m.url + "/api/family_dashboard/device/background?v=" + version
+            ' The poster loads a uri by itself and cannot send the device token.
+            ' Download with the same Bearer header as the rest of the API, then
+            ' point the poster at the local file.
+            bgUrl = DownloadUploadedBackground(version)
         else if bgMode = "custom_url" and data.background_url <> invalid and data.background_url <> ""
             bgUrl = data.background_url.ToStr()
             if Left(bgUrl, 1) = "/" then bgUrl = m.url + bgUrl
@@ -326,6 +344,34 @@ function ValidateConnection() as string
     else
         return "network_error"
     end if
+end function
+
+function DownloadUploadedBackground(version as string) as string
+    token = SafeFileToken(version)
+    dest = "tmp:/dashboard-bg-" + token + ".jpg"
+    if m.backgroundVersion = version and m.backgroundFile = dest then return dest
+    code = HttpGetToFile("/api/family_dashboard/device/background?v=" + UrlEscape(version), dest)
+    print "HA TASK: background download status="; code
+    if code >= 200 and code < 300
+        m.backgroundVersion = version
+        m.backgroundFile = dest
+        return dest
+    end if
+    return ""
+end function
+
+function SafeFileToken(value as string) as string
+    out = ""
+    for i = 1 to Len(value)
+        c = Mid(value, i, 1)
+        code = Asc(c)
+        if (code >= 48 and code <= 57) or (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
+            out = out + c
+        end if
+    end for
+    if out = "" then out = "image"
+    if Len(out) > 40 then out = Right(out, 40)
+    return out
 end function
 
 function UrlEscape(s as string) as string

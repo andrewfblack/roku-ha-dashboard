@@ -14,17 +14,16 @@
     <TabIcons id="tabIcons" selected="climate" translation="[70,30]" />
     <Label text="CLIMATE" width="450" height="72" translation="[800,43]" font="font:LargeSystemFont" />
     <Label id="status" text="UP/DOWN: temperature    OK: mode" width="650" height="52" translation="[1190,62]" horizAlign="right" />
-    <Rectangle translation="[180,165]" width="1560" height="835" color="0x241A10F2" />
-    <Label id="name" text="No climate entity selected" width="1400" height="70" translation="[260,205]" horizAlign="center" color="0xE0A85EFF" font="font:LargeSystemFont" />
-    <Label id="index" text="" width="1400" height="44" translation="[260,275]" horizAlign="center" />
-    <Label id="current" text="--" width="680" height="150" translation="[270,335]" horizAlign="center" font="font:LargestSystemFont" />
-    <Label text="CURRENT" width="680" height="50" translation="[270,485]" horizAlign="center" color="0xC0B49CFF" font="font:MediumSystemFont" />
-    <Label id="target" text="--" width="680" height="150" translation="[970,335]" horizAlign="center" font="font:LargestSystemFont" />
-    <Label text="TARGET" width="680" height="50" translation="[970,485]" horizAlign="center" color="0xC0B49CFF" font="font:MediumSystemFont" />
-    <Label id="mode" text="" visible="false" width="650" height="60" translation="[310,560]" horizAlign="center" />
-    <Label id="action" text="Status: --" width="680" height="60" translation="[620,560]" horizAlign="center" />
-    <Group id="modeButtons" translation="[360,650]" />
-    <Label id="humidity" text="" width="1400" height="45" translation="[260,900]" horizAlign="center" />
-    <Label text="UP/DOWN adjusts temperature • OK changes mode • LEFT/RIGHT changes tabs" width="1400" height="44" translation="[260,945]" horizAlign="center" color="0xC0B49CFF" />
+    <Rectangle translation="[80,165]" width="1760" height="835" color="0x241A10F2" />
+    <Group id="cards" translation="[120,210]" />
+    <Label id="empty" text="No climate entity selected in Home Assistant" width="1600" height="80" translation="[160,450]" horizAlign="center" visible="false" />
+    <Label text="LEFT/RIGHT: climate entity    UP/DOWN: temperature    OK: mode" width="1600" height="44" translation="[160,945]" horizAlign="center" color="0xC0B49CFF" />
+    <Group id="modePopup" visible="false">
+      <Rectangle width="1920" height="1080" color="0x100A06F4" />
+      <Rectangle translation="[470,190]" width="980" height="700" color="0x241A10FF" />
+      <Label id="popupTitle" text="HVAC MODE" width="820" height="70" translation="[550,240]" color="0xE0A85EFF" font="font:LargeSystemFont" />
+      <Group id="popupModes" translation="[550,350]" />
+      <Label text="BACK or OK closes" width="820" height="50" translation="[550,810]" horizAlign="center" color="0xC0B49CFF" />
+    </Group>
   </children>
 </component>

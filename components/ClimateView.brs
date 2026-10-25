@@ -1,79 +1,124 @@
 sub init()
     m.top.focusable = true
-    m.name = m.top.FindNode("name") : m.index = m.top.FindNode("index")
-    m.current = m.top.FindNode("current") : m.target = m.top.FindNode("target")
-    m.mode = m.top.FindNode("mode") : m.action = m.top.FindNode("action")
-    m.humidity = m.top.FindNode("humidity") : m.status = m.top.FindNode("status")
-    m.modeGroup = m.top.FindNode("modeButtons")
-    m.modeCards = []
-    buildModeCards()
-    m.items = [] : m.focusIndex = 0
+    m.cardsGroup = m.top.FindNode("cards")
+    m.modePopup = m.top.FindNode("modePopup")
+    m.popupTitle = m.top.FindNode("popupTitle")
+    m.popupModesGroup = m.top.FindNode("popupModes")
+    m.status = m.top.FindNode("status")
+    m.empty = m.top.FindNode("empty")
+    m.items = []
+    m.cards = []
+    m.focusIndex = 0
+    m.popupOpen = false
+    m.popupIndex = 0
+    m.popupModes = []
+    buildCards()
+end sub
+
+sub buildCards()
+    for i = 0 to 1
+        x = i * 850
+        focus = m.cardsGroup.CreateChild("Rectangle")
+        focus.translation = [x, 0]
+        focus.width = 790
+        focus.height = 700
+        focus.color = "0xF2A24BFF"
+        focus.visible = false
+        panel = m.cardsGroup.CreateChild("Rectangle")
+        panel.translation = [x + 7, 7]
+        panel.width = 776
+        panel.height = 686
+        panel.color = "0x382A22FF"
+        name = m.cardsGroup.CreateChild("Label")
+        name.translation = [x + 30, 35]
+        name.width = 730
+        name.height = 62
+        name.horizAlign = "center"
+        name.font = "font:LargeSystemFont"
+        current = m.cardsGroup.CreateChild("Label")
+        current.translation = [x + 30, 145]
+        current.width = 350
+        current.height = 125
+        current.horizAlign = "center"
+        current.font = "font:LargestSystemFont"
+        target = m.cardsGroup.CreateChild("Label")
+        target.translation = [x + 410, 145]
+        target.width = 350
+        target.height = 125
+        target.horizAlign = "center"
+        target.font = "font:LargestSystemFont"
+        currentLabel = m.cardsGroup.CreateChild("Label")
+        currentLabel.translation = [x + 30, 275]
+        currentLabel.width = 350
+        currentLabel.height = 42
+        currentLabel.horizAlign = "center"
+        currentLabel.text = "CURRENT"
+        currentLabel.color = "0xC0B49CFF"
+        targetLabel = m.cardsGroup.CreateChild("Label")
+        targetLabel.translation = [x + 410, 275]
+        targetLabel.width = 350
+        targetLabel.height = 42
+        targetLabel.horizAlign = "center"
+        targetLabel.text = "TARGET"
+        targetLabel.color = "0xC0B49CFF"
+        modeIcon = m.cardsGroup.CreateChild("Poster")
+        modeIcon.translation = [x + 335, 370]
+        modeIcon.width = 120
+        modeIcon.height = 120
+        modeIcon.loadDisplayMode = "scaleToFit"
+        mode = m.cardsGroup.CreateChild("Label")
+        mode.translation = [x + 30, 510]
+        mode.width = 730
+        mode.height = 58
+        mode.horizAlign = "center"
+        mode.font = "font:MediumSystemFont"
+        humidity = m.cardsGroup.CreateChild("Label")
+        humidity.translation = [x + 30, 605]
+        humidity.width = 730
+        humidity.height = 42
+        humidity.horizAlign = "center"
+        humidity.color = "0xC0B49CFF"
+        m.cards.Push({ focus: focus, panel: panel, name: name, current: current, target: target, modeIcon: modeIcon, mode: mode, humidity: humidity, currentLabel: currentLabel, targetLabel: targetLabel })
+    end for
 end sub
 
 sub onItems()
     m.items = m.top.items
     if m.items = invalid then m.items = []
     if m.focusIndex >= m.items.Count() then m.focusIndex = 0
-    print "CLIMATE UI: "; m.items.Count(); " configured items"
     renderClimate()
 end sub
 
 sub renderClimate()
-    if m.items.Count() = 0
-        m.name.text = "No climate entity selected in Home Assistant"
-        m.current.text = "--" : m.target.text = "--" : return
-    end if
-    item = m.items[m.focusIndex]
-    m.name.text = item.name
-    m.index.text = (m.focusIndex + 1).ToStr() + " of " + m.items.Count().ToStr()
-    m.current.text = tempText(item.current_temperature)
-    m.target.text = tempText(item.temperature)
+    m.empty.visible = m.items.Count() = 0
+    for i = 0 to 1
+        card = m.cards[i]
+        visible = i < m.items.Count()
+        card.panel.visible = visible
+        card.focus.visible = visible and i = m.focusIndex
+        card.name.visible = visible
+        card.current.visible = visible
+        card.target.visible = visible
+        card.modeIcon.visible = visible
+        card.mode.visible = visible
+        card.humidity.visible = visible
+        card.currentLabel.visible = visible
+        card.targetLabel.visible = visible
+        if visible then renderCard(card, m.items[i])
+    end for
+end sub
+
+sub renderCard(card as object, item as object)
+    card.name.text = item.name
+    card.current.text = tempText(item.current_temperature)
+    card.target.text = tempText(item.temperature)
     if item.temperature = invalid and item.target_temp_low <> invalid
-        m.target.text = tempText(item.target_temp_low) + " - " + tempText(item.target_temp_high)
+        card.target.text = tempText(item.target_temp_low) + " - " + tempText(item.target_temp_high)
     end if
-    m.mode.text = "Mode: " + UCase(item.state)
-    m.action.text = "Status: " + valueOr(item.hvac_action, "idle")
-    if item.humidity <> invalid then m.humidity.text = "Humidity: " + item.humidity.ToStr() + "%" else m.humidity.text = ""
-    renderModeCards(item)
-end sub
-
-sub buildModeCards()
-    for i = 0 to 6
-        col = i MOD 4 : row = Int(i / 4)
-        x = col * 300 : y = row * 112
-        focus = m.modeGroup.CreateChild("Rectangle")
-        focus.width = 280 : focus.height = 102 : focus.translation = [x, y]
-        focus.color = "0xE5A84BFF" : focus.visible = false
-        panel = m.modeGroup.CreateChild("Rectangle")
-        panel.width = 270 : panel.height = 92 : panel.translation = [x + 5, y + 5]
-        panel.color = "0x382A1DF2"
-        icon = m.modeGroup.CreateChild("Poster")
-        icon.width = 72 : icon.height = 72 : icon.translation = [x + 99, y + 15]
-        icon.loadDisplayMode = "scaleToFit"
-        label = m.modeGroup.CreateChild("Label")
-        label.width = 1 : label.height = 1 : label.translation = [x, y]
-        label.vertAlign = "center"
-        label.visible = false
-        m.modeCards.Push({ focus: focus, panel: panel, icon: icon, label: label })
-    end for
-end sub
-
-sub renderModeCards(item as object)
-    modes = item.hvac_modes
-    if modes = invalid then modes = []
-    for i = 0 to 6
-        card = m.modeCards[i] : visible = i < modes.Count()
-        card.panel.visible = visible : card.icon.visible = visible : card.label.visible = false
-        card.focus.visible = false
-        if visible
-            modeName = modes[i].ToStr()
-            active = modeName = item.state
-            card.focus.visible = active
-            if active then card.panel.color = "0x6B4A2FFF" else card.panel.color = "0x382A1DF2"
-            card.icon.uri = ClimateIconUri(modeName)
-            card.label.text = UCase(modeName.Replace("_", " "))
-        end if
-    end for
+    modeName = valueOr(item.state, "unknown")
+    card.mode.text = "MODE: " + UCase(modeName.Replace("_", " "))
+    card.modeIcon.uri = ClimateIconUri(modeName)
+    if item.humidity <> invalid then card.humidity.text = "Humidity: " + item.humidity.ToStr() + "%" else card.humidity.text = ""
 end sub
 
 function ClimateIconUri(modeName as string) as string
@@ -95,49 +140,85 @@ function valueOr(value as dynamic, fallback as string) as string
     return value.ToStr()
 end function
 
-sub onCommandResult()
-    result = m.top.commandResult
-    if result = invalid then return
-    if result.ok then m.status.text = "Updated" else m.status.text = "Update failed"
+sub openModePopup()
+    if m.items.Count() = 0 then return
+    item = m.items[m.focusIndex]
+    modes = item.hvac_modes
+    if modes = invalid or modes.Count() = 0 then return
+    m.popupModes = modes
+    m.popupIndex = 0
+    for i = 0 to modes.Count() - 1
+        if LCase(modes[i].ToStr()) = LCase(item.state.ToStr()) then m.popupIndex = i
+    end for
+    m.popupTitle.text = item.name + " — HVAC MODE"
+    clearPopupModes()
+    for i = 0 to modes.Count() - 1
+        label = m.popupModesGroup.CreateChild("Label")
+        label.translation = [0, i * 65]
+        label.width = 820
+        label.height = 55
+        label.horizAlign = "center"
+        label.font = "font:MediumSystemFont"
+        label.text = UCase(modes[i].ToStr().Replace("_", " "))
+        label.color = "0xFFF0D5FF"
+        m.popupLabels.Push(label)
+    end for
+    renderPopupFocus()
+    m.modePopup.visible = true
+    m.popupOpen = true
+end sub
+
+sub clearPopupModes()
+    m.popupLabels = []
+    for each child in m.popupModesGroup.GetChildren(-1, 0)
+        m.popupModesGroup.RemoveChild(child)
+    end for
+end sub
+
+sub renderPopupFocus()
+    for i = 0 to m.popupLabels.Count() - 1
+        if i = m.popupIndex then m.popupLabels[i].color = "0xFFD080FF" else m.popupLabels[i].color = "0xFFF0D5FF"
+    end for
 end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     if not press then return false
     m.top.activity = key
-    count = m.items.Count()
-    if key = "left"
-        if count > 0 then m.focusIndex = (m.focusIndex - 1 + count) MOD count : renderClimate()
-        return true
-    else if key = "right"
-        if count > 0 then m.focusIndex = (m.focusIndex + 1) MOD count : renderClimate()
-        return true
-    else if (key = "up" or key = "down") and count > 0
-        item = m.items[m.focusIndex]
-        target = item.temperature
-        if target = invalid then target = item.current_temperature
-        if target = invalid then return true
-        stepValue = 1
-        if key = "up" then target = target + stepValue else target = target - stepValue
-        if item.min_temp <> invalid and target < item.min_temp then target = item.min_temp
-        if item.max_temp <> invalid and target > item.max_temp then target = item.max_temp
-        m.status.text = "Setting " + tempText(target) + "..."
-        m.top.commandRequest = { action: "climate_temperature", entity_id: item.entity_id, value: target }
-        return true
-    else if key = "OK" and count > 0
-        item = m.items[m.focusIndex] : modes = item.hvac_modes
-        if modes = invalid or modes.Count() = 0 then return true
-        nextIndex = 0
-        for i = 0 to modes.Count() - 1
-            if modes[i] = item.state then nextIndex = (i + 1) MOD modes.Count()
-        end for
-        m.status.text = "Setting " + modes[nextIndex] + "..."
-        m.top.commandRequest = { action: "climate_mode", entity_id: item.entity_id, value: modes[nextIndex] }
-        return true
-    else if key = "back"
+    if m.popupOpen
+        if key = "up" and m.popupIndex > 0 then m.popupIndex = m.popupIndex - 1 : renderPopupFocus() : return true
+        if key = "down" and m.popupIndex + 1 < m.popupLabels.Count() then m.popupIndex = m.popupIndex + 1 : renderPopupFocus() : return true
+        if key = "OK"
+            m.top.commandRequest = { action: "climate_mode", entity_id: m.items[m.focusIndex].entity_id, value: m.popupModes[m.popupIndex] }
+            m.status.text = "Setting " + m.popupModes[m.popupIndex] + "..."
+            m.modePopup.visible = false : m.popupOpen = false
+            return true
+        end if
+        if key = "back" then m.modePopup.visible = false : m.popupOpen = false : return true
         return true
     end if
+    count = m.items.Count()
+    if key = "left" and count > 0 then m.focusIndex = (m.focusIndex - 1 + count) MOD count : renderClimate() : return true
+    if key = "right" and count > 0 then m.focusIndex = (m.focusIndex + 1) MOD count : renderClimate() : return true
+    if key = "up" or key = "down"
+        if count > 0
+            item = m.items[m.focusIndex]
+            target = item.temperature
+            if target = invalid then target = item.current_temperature
+            if target <> invalid
+                if key = "up" then target = target + 1 else target = target - 1
+                m.top.commandRequest = { action: "climate_temperature", entity_id: item.entity_id, value: target }
+            end if
+        end if
+        return true
+    end if
+    if key = "OK" then openModePopup() : return true
     return false
 end function
+
+sub onCommandResult()
+    result = m.top.commandResult
+    if result <> invalid then if result.ok then m.status.text = "Updated" else m.status.text = "Command failed"
+end sub
 
 sub onKeyInput()
     onKeyEvent(m.top.keyInput, true)
